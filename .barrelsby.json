@@ -1,0 +1,5 @@
+{
+  "directory": ["./src/pages", "./src/apis", "./src/datasources", "./src/resolvers", "./src/dal/entity", "./src/dal/repository"],
+  "exclude": ["__mock__", "__mocks__", "dtos", "mappers", "services", ".spec.ts"],
+  "delete": true
+}
