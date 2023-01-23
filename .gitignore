@@ -40,6 +40,10 @@ src/**/*.js.map
 test/**/*.js
 test/**/*.js.map
 
+# exclude dal migration directory
+!/src/dal/migration/*.js
+!/src/dal/migration/*.js.map
+
 # Test
 /.tmp
 /.nyc_output

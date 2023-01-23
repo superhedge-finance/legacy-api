@@ -3,7 +3,7 @@ ARG NODE_VERSION=16
 FROM node:${NODE_VERSION}-slim as build
 WORKDIR /opt
 
-COPY package.json yarn.lock tsconfig.json tsconfig.compile.json .barrelsby.json ./
+COPY package.json .env yarn.lock tsconfig.json tsconfig.compile.json .barrelsby.json ./
 
 RUN yarn install --pure-lockfile
 
