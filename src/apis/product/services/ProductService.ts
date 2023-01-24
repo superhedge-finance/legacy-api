@@ -37,9 +37,21 @@ export class ProductService {
     });
   }
 
-  syncProducts(pastEvents: CreatedProductDto[]): Promise<Awaited<Product>[]> {
-    return Promise.all(pastEvents.map((product: any) => {
-      return this.create(product.product, product.name, product.underlying, product.maxCapacity, product.status, product.currentCapacity, product.cycle);
+  async syncProducts(pastEvents: CreatedProductDto[]): Promise<void> {
+    await Promise.all(pastEvents.map(async (product: any) => {
+      const existProduct = await this.getProduct(product.product);
+      if (!existProduct) {
+        return this.create(product.product, product.name, product.underlying, product.maxCapacity, product.status, product.currentCapacity, product.cycle);
+      } else {
+        return this.productRepository.update({ address: product.product }, {
+          name: product.name,
+          underlying: product.underlying,
+          maxCapacity: product.maxCapacity,
+          status: product.status,
+          currentCapacity: product.currentCapacity,
+          issuanceCycle: product.cycle,
+        })
+      }
     }))
   }
 }

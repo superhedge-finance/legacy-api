@@ -39,7 +39,7 @@ export class ContractService {
           strikePrice2: _issuanceCycle.strikePrice2.toNumber(),
           strikePrice3: _issuanceCycle.strikePrice3.toNumber(),
           strikePrice4: _issuanceCycle.strikePrice4.toNumber(),
-          url: _issuanceCycle.url,
+          url: _issuanceCycle.uri,
         }
       });
     }

@@ -34,7 +34,7 @@ export class ProductController {
 
   @Get("/sync_products/:block")
   async syncProducts(@PathParams("block") block: number): Promise<void> {
-    const pastEvents = await this.contractService.getPastEvents("ProductCreated", block, block);
+    const pastEvents = await this.contractService.getPastEvents("ProductCreated", block - 1, block + 1);
     await this.productService.syncProducts(pastEvents);
   }
 }
