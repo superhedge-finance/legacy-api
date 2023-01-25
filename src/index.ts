@@ -3,7 +3,7 @@ import { $log } from "@tsed/common";
 import { Logger } from "@tsed/logger";
 import { PlatformExpress } from "@tsed/platform-express";
 import { Server } from "./Server";
-import {Product, ProductRepository, SuperHedgeDataSource, User, UserRepository} from "./dal";
+import { Product, ProductRepository, SuperHedgeDataSource, User, UserRepository } from "./dal";
 
 registerProvider({
   provide: SuperHedgeDataSource,

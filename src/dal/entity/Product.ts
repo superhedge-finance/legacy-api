@@ -1,12 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
-import {CycleDto} from "../../apis/product/dto/CycleDto";
+import { CycleDto } from "../../apis";
 
 @Entity("products")
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   address: string;
 
   @Column()
@@ -23,6 +23,9 @@ export class Product {
 
   @Column()
   status: number;
+
+  @Column()
+  isPaused: boolean = false;
 
   @Column("json")
   issuanceCycle: CycleDto;
