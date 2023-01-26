@@ -7,27 +7,33 @@ import { CreatedProductDto } from "./dto/CreatedProductDto";
 
 @Controller("/products")
 export class ProductController {
-  constructor(
-    @Inject(ContractService) private contractService: ContractService,
-    @Inject(ProductService) private productService: ProductService,
-  ) {
-    contractService.subscribeToEvents("ProductCreated", (event: any) => {
-      contractService.eventToArgs(event).then((args) => {
-        productService.syncProducts([args]).then((r) => console.log(r));
-      });
+  @Inject()
+  private readonly contractService: ContractService
+
+  @Inject()
+  private readonly productService: ProductService
+
+  $onInit() {
+    this.contractService.subscribeToEvents("ProductCreated", (event: any) => {
+      this.contractService.getLatestBlockNumber().then((blockNumber) => {
+        this.contractService.getPastEvents("ProductCreated", blockNumber - 10, blockNumber)
+            .then((pastEvents) => {
+              this.productService.syncProducts(pastEvents).then((r) => console.log(r));
+            });
+      })
     });
 
-    productService.getProducts().then((products) => {
+    this.productService.getProductsWithoutStatus().then((products) => {
       products.forEach((product) => {
-        contractService.subscribeToProductEvents(
+        this.contractService.subscribeToProductEvents(
           product.address,
           ["Deposit", "WithdrawPrincipal", "FundAccept", "FundLock", "Issuance", "Mature", "Unpaused", "Paused"],
           (eventName, event) => {
             if (eventName === "Paused" || eventName === "Unpaused") {
-              productService.updateProductPauseStatus(product.address, eventName === "Paused").then((r) => console.log(r));
+              this.productService.updateProductPauseStatus(product.address, eventName === "Paused").then((r) => console.log(r));
             } else {
-              contractService.getProductStats(product.address).then((stats) => {
-                productService.updateProduct(product.address, stats).then((r) => console.log(r));
+              this.contractService.getProductStats(product.address).then((stats) => {
+                this.productService.updateProduct(product.address, stats).then((r) => console.log(r));
               });
             }
           },
@@ -50,7 +56,7 @@ export class ProductController {
 
   @Get("/sync_products/:block")
   async syncProducts(@PathParams("block") block: number): Promise<void> {
-    const pastEvents = await this.contractService.getPastEvents("ProductCreated", block - 1, block + 1);
+    const pastEvents = await this.contractService.getPastEvents("ProductCreated", block - 10, block + 10);
     await this.productService.syncProducts(pastEvents);
   }
 }

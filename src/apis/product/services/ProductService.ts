@@ -31,6 +31,14 @@ export class ProductService {
     return this.productRepository.save(entity);
   }
 
+  getProductsWithoutStatus(): Promise<Array<Product>> {
+      return this.productRepository.find({
+          where: {
+              isPaused: false,
+          },
+      });
+  }
+
   getProducts(): Promise<Array<Product>> {
     return this.productRepository.find({
       where: {
