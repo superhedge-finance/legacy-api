@@ -5,7 +5,7 @@ import "@tsed/platform-express"; // /!\ keep this import
 import "@tsed/ajv";
 import "@tsed/swagger";
 import "@tsed/typegraphql";
-import "@tsed/ioredis";
+// import "@tsed/ioredis";
 import "./datasources/index";
 import "./resolvers/index";
 import { config } from "./config";
@@ -42,11 +42,11 @@ import * as apis from "./apis";
       ejs: "ejs",
     },
   },
-  ioredis: [
-    {
-      name: "default",
-    },
-  ],
+  // ioredis: [
+  //   {
+  //     name: "default",
+  //   },
+  // ],
   exclude: ["**/*.spec.ts"],
 })
 export class Server {

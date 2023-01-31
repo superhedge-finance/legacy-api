@@ -1,13 +1,13 @@
 import * as cron from "node-cron";
 import { Inject, Injectable } from "@tsed/di";
-import { REDIS_CONNECTION } from "../dal/RedisConnection";
+// import { REDIS_CONNECTION } from "../dal/RedisConnection";
 import { ContractService } from "./ContractService";
 import { ProductService } from "../apis/product/services/ProductService";
 
 @Injectable()
 export class CronService {
-  @Inject(REDIS_CONNECTION)
-  protected connection: REDIS_CONNECTION; // ioredis instance
+  // @Inject(REDIS_CONNECTION)
+  // protected connection: REDIS_CONNECTION; // ioredis instance
 
   @Inject()
   private readonly contractService: ContractService;
