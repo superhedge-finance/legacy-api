@@ -4,7 +4,7 @@ import { BigNumber } from "ethers";
 import { CreatedProductDto } from "../dto/CreatedProductDto";
 import { CycleDto } from "../dto/CycleDto";
 import { StatsDto } from "../dto/StatsDto";
-import {Not, UpdateResult} from "typeorm";
+import { Not, UpdateResult } from "typeorm";
 
 @Injectable()
 export class ProductService {
@@ -32,11 +32,11 @@ export class ProductService {
   }
 
   getProductsWithoutStatus(): Promise<Array<Product>> {
-      return this.productRepository.find({
-          where: {
-              isPaused: false,
-          },
-      });
+    return this.productRepository.find({
+      where: {
+        isPaused: false,
+      },
+    });
   }
 
   getProducts(): Promise<Array<Product>> {

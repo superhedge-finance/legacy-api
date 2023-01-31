@@ -8,23 +8,22 @@ import PRODUCT_ABI from "./abis/SHProduct.json";
 export class ContractService {
   private readonly factoryContract: Contract;
   private readonly provider: ethers.providers.JsonRpcProvider;
-
   constructor() {
     this.provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/eth_goerli");
     this.factoryContract = new ethers.Contract(process.env.FACTORY_CONTRACT_ADDRESS as string, FACTORY_ABI, this.provider);
   }
 
   subscribeToEvents(eventName: string, callback: (event: any) => void) {
-    this.factoryContract.on(eventName, (event) => {
-      callback(event)
+    this.factoryContract.on(eventName, (...event) => {
+      callback(event);
     });
   }
 
   subscribeToProductEvents(productAddress: string, eventNames: string[], callback: (eventName: string, event: any) => void) {
     const productContract = new ethers.Contract(productAddress, PRODUCT_ABI, this.provider);
     for (const eventName of eventNames) {
-      productContract.on(eventName, (event) => {
-        console.log(eventName, event)
+      productContract.on(eventName, (...event) => {
+        console.log(eventName, event);
         callback(eventName, event);
       });
     }
