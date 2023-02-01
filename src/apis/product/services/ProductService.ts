@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@tsed/di";
-import { Product, ProductRepository } from "../../../dal";
+import {Product, ProductRepository, WithdrawRequest, WithdrawRequestRepository} from "../../../dal";
 import { BigNumber } from "ethers";
 import { CreatedProductDto } from "../dto/CreatedProductDto";
 import { CycleDto } from "../dto/CycleDto";
@@ -10,6 +10,9 @@ import { Not, UpdateResult } from "typeorm";
 export class ProductService {
   @Inject(ProductRepository)
   private readonly productRepository: ProductRepository;
+
+  @Inject(WithdrawRequestRepository)
+  private readonly withdrawRequestRepository: WithdrawRequestRepository;
 
   create(
     address: string,
@@ -107,5 +110,25 @@ export class ProductService {
         isPaused: isPaused,
       },
     );
+  }
+
+  async requestWithdraw(address: string, productAddress: string, currentTokenId: string): Promise<void> {
+    const entity = new WithdrawRequest();
+    entity.address = address;
+    entity.product = productAddress;
+    entity.current_token_id = currentTokenId;
+    await this.withdrawRequestRepository.save(entity)
+  }
+
+  async cancelWithdraw(address: string, productAddress: string): Promise<void> {
+    const request = await this.withdrawRequestRepository.findOne({
+      where: {
+        address: address,
+        product: productAddress
+      }
+    })
+    if (request) {
+      await this.withdrawRequestRepository.remove(request)
+    }
   }
 }

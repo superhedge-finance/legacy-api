@@ -72,6 +72,11 @@ export class ContractService {
     return parsedEvents;
   }
 
+  async validateWithdrawRequest(address: string, product: string): Promise<string> {
+    const productInstance = new ethers.Contract(product, PRODUCT_ABI, this.provider);
+    return await productInstance.currentTokenId().toString();
+  }
+
   async getLatestBlockNumber(): Promise<number> {
     return this.provider.getBlockNumber();
   }
