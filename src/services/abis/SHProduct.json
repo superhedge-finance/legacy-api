@@ -116,7 +116,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_numOfNftHolders",
+        "name": "_numOfHolders",
         "type": "uint256"
       },
       {
@@ -161,7 +161,13 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_numOfNftHolders",
+        "name": "_currentTokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_prevHolders",
         "type": "uint256"
       },
       {
@@ -180,46 +186,15 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "coupon",
+        "name": "_prevTokenId",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "strikePrice1",
+        "name": "_currentTokenId",
         "type": "uint256"
       },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "strikePrice2",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "strikePrice3",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "strikePrice4",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "uri",
-        "type": "string"
-      }
-    ],
-    "name": "IssuanceCycleSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
       {
         "indexed": false,
         "internalType": "uint256",
@@ -299,6 +274,175 @@
       }
     ],
     "name": "Unpaused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "_apy",
+        "type": "string"
+      }
+    ],
+    "name": "UpdateAPY",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_newCoupon",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdateCoupon",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_coupon",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_strikePrice1",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_strikePrice2",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_strikePrice3",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_strikePrice4",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_tr1",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_tr2",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "_apy",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "name": "UpdateParameters",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_strikePrice1",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_strikePrice2",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_strikePrice3",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_strikePrice4",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdateStrikePrices",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_newTr1",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_newTr2",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdateTRs",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_issuanceDate",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_maturityDate",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdateTimes",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "name": "UpdateURI",
     "type": "event"
   },
   {
@@ -611,6 +755,31 @@
             "type": "uint256"
           },
           {
+            "internalType": "uint256",
+            "name": "tr1",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tr2",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "issuanceDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maturityDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "apy",
+            "type": "string"
+          },
+          {
             "internalType": "string",
             "name": "uri",
             "type": "string"
@@ -674,6 +843,31 @@
         "internalType": "uint256",
         "name": "strikePrice4",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tr1",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tr2",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "issuanceDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maturityDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "apy",
+        "type": "string"
       },
       {
         "internalType": "string",
@@ -880,51 +1074,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "coupon",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strikePrice1",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strikePrice2",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strikePrice3",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strikePrice4",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "uri",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct DataTypes.IssuanceCycle",
-        "name": "_issuanceCycle",
-        "type": "tuple"
-      }
-    ],
-    "name": "setIssuanceCycle",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "shNFT",
     "outputs": [
@@ -979,6 +1128,162 @@
   {
     "inputs": [],
     "name": "unpause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_apy",
+        "type": "string"
+      }
+    ],
+    "name": "updateAPY",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_newCoupon",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateCoupon",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_coupon",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_strikePrice1",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_strikePrice2",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_strikePrice3",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_strikePrice4",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tr1",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tr2",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_apy",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "name": "updateParameters",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_strikePrice1",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_strikePrice2",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_strikePrice3",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_strikePrice4",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateStrikePrices",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_newTr1",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_newTr2",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateTRs",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_issuanceDate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maturityDate",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateTimes",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_newUri",
+        "type": "string"
+      }
+    ],
+    "name": "updateURI",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

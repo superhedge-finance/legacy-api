@@ -57,7 +57,7 @@ export class ProductController {
     return await this.productService.getProduct(address);
   }
 
-  @Get("/sync_products/:block")
+  @Get("/sync-products/:block")
   async syncProducts(@PathParams("block") block: number): Promise<void> {
     const pastEvents = await this.contractService.getPastEvents("ProductCreated", block - 10, block + 10);
     await this.productService.syncProducts(pastEvents);

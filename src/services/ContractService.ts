@@ -9,7 +9,7 @@ export class ContractService {
   private readonly factoryContract: Contract;
   private readonly provider: ethers.providers.JsonRpcProvider;
   constructor() {
-    this.provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/eth_goerli");
+    this.provider = new ethers.providers.JsonRpcProvider("https://goerli.blockpi.network/v1/rpc/public");
     this.factoryContract = new ethers.Contract(process.env.FACTORY_CONTRACT_ADDRESS as string, FACTORY_ABI, this.provider);
   }
 
@@ -55,6 +55,11 @@ export class ContractService {
         strikePrice2: _issuanceCycle.strikePrice2.toNumber(),
         strikePrice3: _issuanceCycle.strikePrice3.toNumber(),
         strikePrice4: _issuanceCycle.strikePrice4.toNumber(),
+        tr1: _issuanceCycle.tr1.toNumber(),
+        tr2: _issuanceCycle.tr2.toNumber(),
+        issuanceDate: _issuanceCycle.issuanceDate.toNumber(),
+        maturityDate: _issuanceCycle.maturityDate.toNumber(),
+        apy: _issuanceCycle.apy,
         url: _issuanceCycle.uri,
       },
     };

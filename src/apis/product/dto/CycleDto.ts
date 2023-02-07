@@ -17,5 +17,20 @@ export class CycleDto {
   strikePrice4: number;
 
   @Property()
+  tr1: number;
+
+  @Property()
+  tr2: number;
+
+  @Property()
+  issuanceDate: number;
+
+  @Property()
+  maturityDate: number;
+
+  @Property()
+  apy: string;
+
+  @Property()
   url: string;
 }
