@@ -1,10 +1,10 @@
 import { Inject, Injectable } from "@tsed/di";
-import {Product, ProductRepository, WithdrawRequest, WithdrawRequestRepository} from "../../../dal";
+import { Not, UpdateResult } from "typeorm";
 import { BigNumber } from "ethers";
+import { Product, ProductRepository, WithdrawRequest, WithdrawRequestRepository } from "../../../dal";
 import { CreatedProductDto } from "../dto/CreatedProductDto";
 import { CycleDto } from "../dto/CycleDto";
 import { StatsDto } from "../dto/StatsDto";
-import { Not, UpdateResult } from "typeorm";
 
 @Injectable()
 export class ProductService {
@@ -48,6 +48,9 @@ export class ProductService {
         status: Not(0),
         isPaused: false,
       },
+      order: {
+        created_at: "ASC",
+      },
     });
   }
 
@@ -63,28 +66,28 @@ export class ProductService {
 
   async syncProducts(pastEvents: CreatedProductDto[]): Promise<void> {
     await Promise.all(
-      pastEvents.map(async (product: any) => {
-        const existProduct = await this.getProduct(product.product);
+      pastEvents.map(async (product: CreatedProductDto) => {
+        const existProduct = await this.getProduct(product.address);
         if (!existProduct) {
           return this.create(
-            product.product,
+            product.address,
             product.name,
             product.underlying,
-            product.maxCapacity,
+            BigNumber.from(product.maxCapacity),
             product.status,
             product.currentCapacity,
-            product.cycle,
+            product.issuanceCycle,
           );
         } else {
           return this.productRepository.update(
-            { address: product.product },
+            { address: product.address },
             {
               name: product.name,
               underlying: product.underlying,
               maxCapacity: product.maxCapacity,
               status: product.status,
-              currentCapacity: product.currentCapacity,
-              issuanceCycle: product.cycle,
+              currentCapacity: product.currentCapacity.toString(),
+              issuanceCycle: product.issuanceCycle,
             },
           );
         }
@@ -117,18 +120,18 @@ export class ProductService {
     entity.address = address;
     entity.product = productAddress;
     entity.current_token_id = currentTokenId;
-    await this.withdrawRequestRepository.save(entity)
+    await this.withdrawRequestRepository.save(entity);
   }
 
   async cancelWithdraw(address: string, productAddress: string): Promise<void> {
     const request = await this.withdrawRequestRepository.findOne({
       where: {
         address: address,
-        product: productAddress
-      }
-    })
+        product: productAddress,
+      },
+    });
     if (request) {
-      await this.withdrawRequestRepository.remove(request)
+      await this.withdrawRequestRepository.remove(request);
     }
   }
 }

@@ -34,6 +34,8 @@ export class ContractService {
 
     return {
       ...event.args,
+      address: event.args.product,
+      maxCapacity: event.args.maxCapacity.toString(),
       ...stats,
     };
   }

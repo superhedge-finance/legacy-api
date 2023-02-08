@@ -1,10 +1,10 @@
 import { Controller, Inject } from "@tsed/di";
-import {Get, Post, Returns} from "@tsed/schema";
-import {BodyParams, PathParams} from "@tsed/platform-params";
+import { Get, Post, Returns } from "@tsed/schema";
+import { BodyParams, PathParams } from "@tsed/platform-params";
 import { ContractService } from "../../services/ContractService";
 import { ProductService } from "./services/ProductService";
 import { CreatedProductDto } from "./dto/CreatedProductDto";
-import {CronService} from "../../services/CronService";
+import { CronService } from "../../services/CronService";
 
 @Controller("/products")
 export class ProductController {
@@ -65,7 +65,7 @@ export class ProductController {
 
   @Post("/request-withdraw")
   async requestWithdraw(@BodyParams("address") address: string, @BodyParams("product") product: string): Promise<void> {
-    const currentTokenId = await this.contractService.validateWithdrawRequest(address, product)
+    const currentTokenId = await this.contractService.validateWithdrawRequest(address, product);
     return this.productService.requestWithdraw(address, product, currentTokenId);
   }
 
