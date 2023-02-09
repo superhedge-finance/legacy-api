@@ -63,7 +63,7 @@ export class ProductService {
     return this.productRepository.findOne({
       where: {
         address: address,
-        status: Not(0),
+        // status: Not(0),
         isPaused: false,
       },
     });

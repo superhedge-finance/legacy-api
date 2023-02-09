@@ -1,7 +1,7 @@
 import { Controller, Inject } from "@tsed/di";
 import { ContractService } from "../../services/ContractService";
 import { ProductService } from "../product/services/ProductService";
-import { HistoryRepository } from "../../dal/repository/HistoryRepository";
+import { HistoryRepository, UserRepository } from "../../dal";
 import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../services/dto/enum";
 
 @Controller("/events")
@@ -14,6 +14,9 @@ export class EventsController {
 
   @Inject(HistoryRepository)
   private readonly historyRepository: HistoryRepository;
+
+  @Inject(UserRepository)
+  private readonly userRepository: UserRepository;
 
   $onInit() {
     this.contractService.subscribeToEvents("ProductCreated", () => {
@@ -50,18 +53,33 @@ export class EventsController {
             }
 
             if (["Deposit", "WithdrawPrincipal", "WithdrawCoupon", "WithdrawOption"].includes(eventName)) {
-              console.log('event', event);
+              console.log("event", event);
               let withdrawType: WITHDRAW_TYPE = WITHDRAW_TYPE.NONE;
+              let address = "";
               if (eventName === "WithdrawPrincipal") {
                 withdrawType = WITHDRAW_TYPE.PRINCIPAL;
+                address = event.args._to;
               } else if (eventName === "WithdrawCoupon") {
                 withdrawType = WITHDRAW_TYPE.COUPON;
+                address = event.args._to;
               } else if (eventName === "WithdrawOption") {
                 withdrawType = WITHDRAW_TYPE.OPTION;
+                address = event.args._to;
+              } else {
+                address = event.args._from;
               }
               this.historyRepository
-                .createHistory(event, product.id, eventName === "Deposit" ? HISTORY_TYPE.DEPOSIT : HISTORY_TYPE.WITHDRAW, withdrawType)
+                .createHistory(
+                  address,
+                  event.args._amount,
+                  event.transactionHash,
+                  product.id,
+                  eventName === "Deposit" ? HISTORY_TYPE.DEPOSIT : HISTORY_TYPE.WITHDRAW,
+                  withdrawType,
+                )
                 .then(() => console.log("History saved"));
+
+              this.userRepository.saveProductId(address, product.id).then(() => console.log("Product ID saved to user entity"));
             }
           },
         );
