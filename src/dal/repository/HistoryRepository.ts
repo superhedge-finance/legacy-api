@@ -12,14 +12,17 @@ export class HistoryRepository extends Repository<History> {
     type: HISTORY_TYPE,
     withdrawType: WITHDRAW_TYPE,
   ) => {
-    const entity = new History();
-    entity.address = address;
-    entity.type = type;
-    entity.withdrawType = withdrawType;
-    entity.productId = productId;
-    entity.amount = amount.toString();
-    entity.amountInDecimal = Number(ethers.utils.formatUnits(amount, 6));
-    entity.transactionHash = transactionHash;
-    return this.save(entity);
+    const exist  = await this.findOne({ where: { transactionHash } });
+    if (!exist) {
+      const entity = new History();
+      entity.address = address;
+      entity.type = type;
+      entity.withdrawType = withdrawType;
+      entity.productId = productId;
+      entity.amount = amount.toString();
+      entity.amountInDecimal = Number(ethers.utils.formatUnits(amount, 6));
+      entity.transactionHash = transactionHash;
+      return this.save(entity);
+    }
   };
 }
