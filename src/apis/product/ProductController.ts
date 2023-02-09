@@ -9,41 +9,13 @@ import { CronService } from "../../services/CronService";
 @Controller("/products")
 export class ProductController {
   @Inject()
-  private readonly contractService: ContractService;
-
-  @Inject()
   private readonly productService: ProductService;
 
   @Inject()
   private readonly cronService: CronService;
 
-  $onInit() {
-    this.contractService.subscribeToEvents("ProductCreated", (event: any) => {
-      this.contractService.getLatestBlockNumber().then((blockNumber) => {
-        this.contractService.getPastEvents("ProductCreated", blockNumber - 10, blockNumber).then((pastEvents) => {
-          this.productService.syncProducts(pastEvents).then((r) => console.log(r));
-        });
-      });
-    });
-
-    this.productService.getProductsWithoutStatus().then((products) => {
-      products.forEach((product) => {
-        this.contractService.subscribeToProductEvents(
-          product.address,
-          ["Deposit", "WithdrawPrincipal", "FundAccept", "FundLock", "Issuance", "Mature", "Unpaused", "Paused"],
-          (eventName, event) => {
-            if (eventName === "Paused" || eventName === "Unpaused") {
-              this.productService.updateProductPauseStatus(product.address, eventName === "Paused").then((r) => console.log(r));
-            } else {
-              this.contractService.getProductStats(product.address).then((stats) => {
-                this.productService.updateProduct(product.address, stats).then((r) => console.log(r));
-              });
-            }
-          },
-        );
-      });
-    });
-  }
+  @Inject()
+  private readonly contractService: ContractService;
 
   @Get("")
   @Returns(200, Array<CreatedProductDto>)

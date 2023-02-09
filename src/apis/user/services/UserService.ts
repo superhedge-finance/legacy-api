@@ -1,15 +1,59 @@
 import { Inject, Injectable } from "@tsed/di";
-import { User, UserRepository } from "../../../dal";
+import { In } from "typeorm";
+import { Product, ProductRepository, User, UserRepository, HistoryRepository } from "../../../dal";
+import { CreateUserDto } from "../dto/CreateUserDto";
+import { HistoryResponseDto } from "../dto/HistoryResponseDto";
 
 @Injectable()
 export class UserService {
   @Inject(UserRepository)
   private readonly userRepository: UserRepository;
 
-  create(firstName: string, lastName: string): Promise<User> {
+  @Inject(ProductRepository)
+  private readonly productRepository: ProductRepository;
+
+  @Inject(HistoryRepository)
+  private readonly historyRepository: HistoryRepository;
+
+  async create(request: CreateUserDto): Promise<User> {
     const entity = new User();
-    entity.firstName = firstName;
-    entity.lastName = lastName;
+    entity.address = request.address;
+    entity.userName = request.username;
+    entity.email = request.email;
+    entity.subscribed = request.subscribed;
     return this.userRepository.save(entity);
+  }
+
+  async get(address: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { address } });
+  }
+
+  async getPositions(address: string): Promise<Array<Product>> {
+    const user = await this.userRepository.findOne({ where: { address } });
+    if (!user) throw new Error("User not found");
+    return this.productRepository.find({
+      where: {
+        id: In(user.productIds),
+      },
+    });
+  }
+
+  async getHistories(address: string): Promise<Array<HistoryResponseDto>> {
+    const histories = await this.historyRepository
+      .createQueryBuilder("history")
+      .leftJoinAndMapOne("history.product", Product, "product", "product.id = history.product_id")
+      .where("history.address = :address", { address })
+      .getMany();
+    return histories.map((history) => {
+      return {
+        address: history.address,
+        type: history.type,
+        withdrawType: history.withdrawType,
+        productName: history.product.name,
+        amountInDecimal: history.amountInDecimal,
+        transactionHash: history.transactionHash,
+        createdAt: history.created_at,
+      };
+    });
   }
 }

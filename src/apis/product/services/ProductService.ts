@@ -1,15 +1,20 @@
 import { Inject, Injectable } from "@tsed/di";
 import { Not, UpdateResult } from "typeorm";
-import { BigNumber } from "ethers";
-import { Product, ProductRepository, WithdrawRequest, WithdrawRequestRepository } from "../../../dal";
+import { BigNumber, ethers } from "ethers";
+import { History, Product, ProductRepository, WithdrawRequest, WithdrawRequestRepository } from "../../../dal";
 import { CreatedProductDto } from "../dto/CreatedProductDto";
 import { CycleDto } from "../dto/CycleDto";
 import { StatsDto } from "../dto/StatsDto";
+import { HistoryRepository } from "../../../dal/repository/HistoryRepository";
+import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../../services/dto/enum";
 
 @Injectable()
 export class ProductService {
   @Inject(ProductRepository)
   private readonly productRepository: ProductRepository;
+
+  @Inject(HistoryRepository)
+  private readonly historyRepository: HistoryRepository;
 
   @Inject(WithdrawRequestRepository)
   private readonly withdrawRequestRepository: WithdrawRequestRepository;
@@ -93,6 +98,29 @@ export class ProductService {
         }
       }),
     );
+  }
+
+  async syncHistories(
+    productId: number,
+    type: HISTORY_TYPE,
+    pastEvents: any[],
+    withdrawType: WITHDRAW_TYPE = WITHDRAW_TYPE.NONE,
+  ): Promise<void> {
+    for (const event of pastEvents) {
+      const entity = new History();
+      if (type === HISTORY_TYPE.DEPOSIT) {
+        entity.address = event.args._from;
+      } else {
+        entity.address = event.args._to;
+      }
+      entity.type = type;
+      entity.withdrawType = withdrawType;
+      entity.productId = productId;
+      entity.amount = event.args._amount.toString();
+      entity.amountInDecimal = Number(ethers.utils.formatUnits(event.args._amount, 6));
+      entity.transactionHash = event.transactionHash;
+      await this.historyRepository.save(entity);
+    }
   }
 
   async updateProduct(address: string, stats: StatsDto): Promise<UpdateResult> {
