@@ -52,7 +52,6 @@ export class ContractService {
       const {data} = await axios.get(_issuanceCycle.uri);
       image_uri = data.image;
     } catch (e) {
-      console.log(e);
     }
 
     return {
