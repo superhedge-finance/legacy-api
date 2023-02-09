@@ -3,7 +3,17 @@ import { $log } from "@tsed/common";
 import { Logger } from "@tsed/logger";
 import { PlatformExpress } from "@tsed/platform-express";
 import { Server } from "./Server";
-import { Product, ProductRepository, SuperHedgeDataSource, User, WithdrawRequest, UserRepository, WithdrawRequestRepository } from "./dal";
+import {
+  Product,
+  ProductRepository,
+  SuperHedgeDataSource,
+  User,
+  WithdrawRequest,
+  UserRepository,
+  WithdrawRequestRepository,
+  History,
+} from "./dal";
+import { HistoryRepository } from "./dal/repository/HistoryRepository";
 
 registerProvider({
   provide: SuperHedgeDataSource,
@@ -34,6 +44,11 @@ registerProvider({
 registerProvider({
   provide: WithdrawRequestRepository,
   useValue: new WithdrawRequestRepository(WithdrawRequest, SuperHedgeDataSource.createEntityManager()),
+});
+
+registerProvider({
+  provide: HistoryRepository,
+  useValue: new HistoryRepository(History, SuperHedgeDataSource.createEntityManager()),
 });
 
 async function bootstrap() {

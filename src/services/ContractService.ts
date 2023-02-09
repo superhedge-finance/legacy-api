@@ -23,8 +23,7 @@ export class ContractService {
     const productContract = new ethers.Contract(productAddress, PRODUCT_ABI, this.provider);
     for (const eventName of eventNames) {
       productContract.on(eventName, (...event) => {
-        console.log(eventName, event);
-        callback(eventName, event);
+        callback(eventName, event[event.length - 1]);
       });
     }
   }
@@ -77,6 +76,11 @@ export class ContractService {
     }
 
     return parsedEvents;
+  }
+
+  async getProductPastEvents(address: string, eventName: string, fromBlock: number, toBlock: number): Promise<any> {
+    const productInstance = new ethers.Contract(address, PRODUCT_ABI, this.provider);
+    return await productInstance.queryFilter(productInstance.filters[eventName](), fromBlock, toBlock);
   }
 
   async validateWithdrawRequest(address: string, product: string): Promise<string> {
