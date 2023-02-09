@@ -1,5 +1,6 @@
 import { Injectable } from "@tsed/di";
 import { Contract, ethers } from "ethers";
+import axios from "axios";
 import { CreatedProductDto, StatsDto } from "../apis";
 import FACTORY_ABI from "./abis/SHFactory.json";
 import PRODUCT_ABI from "./abis/SHProduct.json";
@@ -46,6 +47,14 @@ export class ContractService {
     const _issuanceCycle = await productInstance.issuanceCycle();
     const _paused = await productInstance.paused();
 
+    let image_uri = ''
+    try {
+      const {data} = await axios.get(_issuanceCycle.uri);
+      image_uri = data.image;
+    } catch (e) {
+      console.log(e);
+    }
+
     return {
       status: _status,
       currentCapacity: _currentCapacity.toString(),
@@ -62,6 +71,7 @@ export class ContractService {
         maturityDate: _issuanceCycle.maturityDate.toNumber(),
         apy: _issuanceCycle.apy,
         url: _issuanceCycle.uri,
+        image_uri: image_uri,
       },
     };
   }
