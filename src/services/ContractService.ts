@@ -36,6 +36,7 @@ export class ContractService {
       ...event.args,
       address: event.args.product,
       maxCapacity: event.args.maxCapacity.toString(),
+      issuanceCycle: stats.cycle,
       ...stats,
     };
   }
