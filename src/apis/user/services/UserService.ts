@@ -38,11 +38,12 @@ export class UserService {
     });
   }
 
-  async getHistories(address: string): Promise<Array<HistoryResponseDto>> {
+  async getHistories(address: string, sort: number): Promise<Array<HistoryResponseDto>> {
     const histories = await this.historyRepository
       .createQueryBuilder("history")
       .leftJoinAndMapOne("history.product", Product, "product", "product.id = history.product_id")
       .where("history.address = :address", { address })
+      .orderBy("history.created_at", sort === 1 ? "ASC" : "DESC")
       .getMany();
     return histories.map((history) => {
       return {

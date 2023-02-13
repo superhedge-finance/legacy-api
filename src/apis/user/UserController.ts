@@ -1,6 +1,6 @@
 import { Controller, Inject } from "@tsed/di";
 import { Get, Post, Returns } from "@tsed/schema";
-import { BodyParams, PathParams } from "@tsed/platform-params";
+import {BodyParams, PathParams, QueryParams} from "@tsed/platform-params";
 import { UserService } from "./services/UserService";
 import { CreateUserDto } from "./dto/CreateUserDto";
 import { CreatedUserDto } from "./dto/CreatedUserDto";
@@ -32,7 +32,7 @@ export class UserController {
 
   @Get("/history/:address")
   @Returns(200, Array).Of(HistoryResponseDto)
-  async getHistories(@PathParams("address") address: string): Promise<Array<HistoryResponseDto>> {
-    return this.userService.getHistories(address);
+  async getHistories(@PathParams("address") address: string, @QueryParams("sort") sort: number): Promise<Array<HistoryResponseDto>> {
+    return this.userService.getHistories(address, sort);
   }
 }
