@@ -6,6 +6,7 @@ export class MarketplaceRepository extends Repository<Marketplace> {
   async syncItemListedEntity(
     owner: string,
     nft: string,
+    product: string,
     tokenId: BigNumber,
     quantity: BigNumber,
     payToken: string,
@@ -20,6 +21,7 @@ export class MarketplaceRepository extends Repository<Marketplace> {
       const marketplace = new Marketplace();
       marketplace.seller = owner;
       marketplace.nft = nft;
+      marketplace.product = product;
       marketplace.tokenId = tokenId.toString();
       marketplace.tokenIdInDecimal = tokenId.toNumber();
       marketplace.quantity = quantity.toString();

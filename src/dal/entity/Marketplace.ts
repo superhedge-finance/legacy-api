@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Property } from "@tsed/schema";
-import { HISTORY_TYPE } from "../../services/dto/enum";
 
 @Entity("marketplaces")
 export class Marketplace {
@@ -14,6 +13,10 @@ export class Marketplace {
   @Column()
   @Property()
   nft: string;
+
+  @Column()
+  @Property()
+  product: string;
 
   @Column()
   @Property()

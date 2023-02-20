@@ -53,6 +53,12 @@
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "product",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
         "name": "tokenId",
@@ -337,6 +343,11 @@
       {
         "internalType": "address",
         "name": "_nftAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_productAddress",
         "type": "address"
       },
       {

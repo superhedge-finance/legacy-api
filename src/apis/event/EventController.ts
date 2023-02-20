@@ -97,6 +97,7 @@ export class EventsController {
           .syncItemListedEntity(
             event.args.owner,
             event.args.nft,
+            event.args.product,
             event.args.tokenId,
             event.args.quantity,
             event.args.payToken,
