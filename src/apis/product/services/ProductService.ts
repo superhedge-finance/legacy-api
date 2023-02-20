@@ -110,6 +110,9 @@ export class ProductService {
       const entity = new History();
       if (type === HISTORY_TYPE.DEPOSIT) {
         entity.address = event.args._from;
+        entity.tokenId = event.args._currentTokenId.toString();
+        entity.supply = event.args._supply.toString();
+        entity.supplyInDecimal = event.args._supply.toNumber();
       } else {
         entity.address = event.args._to;
       }

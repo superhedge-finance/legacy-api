@@ -4,6 +4,7 @@ import { Inject, Injectable } from "@tsed/di";
 import { ContractService } from "./ContractService";
 import { ProductService } from "../apis/product/services/ProductService";
 import { HISTORY_TYPE, WITHDRAW_TYPE } from "./dto/enum";
+import { MarketplaceRepository } from "../dal";
 
 @Injectable()
 export class CronService {
@@ -16,12 +17,31 @@ export class CronService {
   @Inject()
   private readonly productService: ProductService;
 
+  @Inject(MarketplaceRepository)
+  private readonly marketplaceRepository: MarketplaceRepository;
+
   $onInit() {
     // https://crontab.guru/#*/3_*_*_*_* (At every 3th minute)
     cron.schedule("*/3 * * * *", async () => {
       const lastBlockNumber = await this.contractService.getLatestBlockNumber();
       const pastEvents = await this.contractService.getPastEvents("ProductCreated", lastBlockNumber - 50, lastBlockNumber);
       await this.productService.syncProducts(pastEvents);
+
+      const pastItemListedEvents = await this.contractService.getMarketplacePastEvents("ItemListed", lastBlockNumber - 50, lastBlockNumber);
+      for (const event of pastItemListedEvents) {
+        if (event.args) {
+          await this.marketplaceRepository.syncItemListedEntity(
+            event.args.owner,
+            event.args.nft,
+            event.args.tokenId,
+            event.args.quantity,
+            event.args.payToken,
+            event.args.pricePerItem,
+            event.args.startingTime,
+            event.transactionHash,
+          );
+        }
+      }
 
       const products = await this.productService.getProductsWithoutStatus();
       for (const product of products) {

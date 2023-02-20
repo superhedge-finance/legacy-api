@@ -44,6 +44,18 @@ export class History {
   @Property()
   transactionHash: string;
 
+  @Column({ nullable: true })
+  @Property()
+  tokenId: string;
+
+  @Column({ nullable: true })
+  @Property()
+  supply: string;
+
+  @Column({ nullable: true })
+  @Property()
+  supplyInDecimal: number;
+
   @OneToOne(() => Product, (product) => product.history)
   product: Product;
 

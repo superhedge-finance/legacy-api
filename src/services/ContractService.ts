@@ -4,14 +4,18 @@ import axios from "axios";
 import { CreatedProductDto, StatsDto } from "../apis";
 import FACTORY_ABI from "./abis/SHFactory.json";
 import PRODUCT_ABI from "./abis/SHProduct.json";
+import MARKETPLACE_ABI from "./abis/SHMarketplace.json";
 
 @Injectable()
 export class ContractService {
   private readonly factoryContract: Contract;
+  private readonly marketplaceContract: Contract;
   private readonly provider: ethers.providers.JsonRpcProvider;
+
   constructor() {
     this.provider = new ethers.providers.JsonRpcProvider("https://goerli.blockpi.network/v1/rpc/public");
     this.factoryContract = new ethers.Contract(process.env.FACTORY_CONTRACT_ADDRESS as string, FACTORY_ABI, this.provider);
+    this.marketplaceContract = new ethers.Contract(process.env.MARKETPLACE_CONTRACT_ADDRESS as string, MARKETPLACE_ABI, this.provider);
   }
 
   subscribeToEvents(eventName: string, callback: (event: any) => void) {
@@ -24,6 +28,15 @@ export class ContractService {
     const productContract = new ethers.Contract(productAddress, PRODUCT_ABI, this.provider);
     for (const eventName of eventNames) {
       productContract.on(eventName, (...event) => {
+        callback(eventName, event[event.length - 1]);
+      });
+    }
+  }
+
+  subscribeToMarketplaceEvents(eventNames: string[], callback: (eventName: string, event: any) => void) {
+    const marketplaceContract = new ethers.Contract(process.env.MARKETPLACE_CONTRACT_ADDRESS as string, MARKETPLACE_ABI, this.provider);
+    for (const eventName of eventNames) {
+      marketplaceContract.on(eventName, (...event) => {
         callback(eventName, event[event.length - 1]);
       });
     }
@@ -48,12 +61,11 @@ export class ContractService {
     const _issuanceCycle = await productInstance.issuanceCycle();
     const _paused = await productInstance.paused();
 
-    let image_uri = ''
+    let image_uri = "";
     try {
-      const {data} = await axios.get(_issuanceCycle.uri);
+      const { data } = await axios.get(_issuanceCycle.uri);
       image_uri = data.image;
-    } catch (e) {
-    }
+    } catch (e) {}
 
     return {
       status: _status,
@@ -86,6 +98,10 @@ export class ContractService {
     }
 
     return parsedEvents;
+  }
+
+  async getMarketplacePastEvents(eventName: string, fromBlock: number, toBlock: number) {
+    return await this.marketplaceContract.queryFilter(this.marketplaceContract.filters[eventName](), fromBlock, toBlock);
   }
 
   async getProductPastEvents(address: string, eventName: string, fromBlock: number, toBlock: number): Promise<any> {

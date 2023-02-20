@@ -1,10 +1,10 @@
 import { Controller, Inject } from "@tsed/di";
 import { Get, Post, Returns } from "@tsed/schema";
-import {BodyParams, PathParams, QueryParams} from "@tsed/platform-params";
+import { BodyParams, PathParams, QueryParams } from "@tsed/platform-params";
 import { UserService } from "./services/UserService";
 import { CreateUserDto } from "./dto/CreateUserDto";
 import { CreatedUserDto } from "./dto/CreatedUserDto";
-import { History, Product, User } from "../../dal";
+import { Product, User } from "../../dal";
 import { HistoryResponseDto } from "./dto/HistoryResponseDto";
 
 @Controller("/users")

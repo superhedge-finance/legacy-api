@@ -1,7 +1,7 @@
 import { Controller, Inject } from "@tsed/di";
 import { ContractService } from "../../services/ContractService";
 import { ProductService } from "../product/services/ProductService";
-import { HistoryRepository, UserRepository } from "../../dal";
+import { HistoryRepository, MarketplaceRepository, UserRepository } from "../../dal";
 import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../services/dto/enum";
 
 @Controller("/events")
@@ -17,6 +17,9 @@ export class EventsController {
 
   @Inject(UserRepository)
   private readonly userRepository: UserRepository;
+
+  @Inject(MarketplaceRepository)
+  private readonly marketplaceRepository: MarketplaceRepository;
 
   $onInit() {
     this.contractService.subscribeToEvents("ProductCreated", () => {
@@ -76,6 +79,8 @@ export class EventsController {
                   product.id,
                   eventName === "Deposit" ? HISTORY_TYPE.DEPOSIT : HISTORY_TYPE.WITHDRAW,
                   withdrawType,
+                  event.args._currentTokenId,
+                  event.args._supply,
                 )
                 .then(() => console.log("History saved"));
 
@@ -84,6 +89,23 @@ export class EventsController {
           },
         );
       });
+    });
+
+    this.contractService.subscribeToMarketplaceEvents(["ItemListed", "ItemSold", "ItemCanceled", "ItemUpdated"], (eventName, event) => {
+      if (eventName === "ItemListed") {
+        this.marketplaceRepository
+          .syncItemListedEntity(
+            event.args.owner,
+            event.args.nft,
+            event.args.tokenId,
+            event.args.quantity,
+            event.args.payToken,
+            event.args.pricePerItem,
+            event.args.startingTime,
+            event.transactionHash,
+          )
+          .then((r) => console.log(r));
+      }
     });
   }
 }

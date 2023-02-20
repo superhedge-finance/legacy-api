@@ -11,8 +11,10 @@ export class HistoryRepository extends Repository<History> {
     productId: number,
     type: HISTORY_TYPE,
     withdrawType: WITHDRAW_TYPE,
+    tokenId?: BigNumber,
+    supply?: BigNumber,
   ) => {
-    const exist  = await this.findOne({ where: { transactionHash } });
+    const exist = await this.findOne({ where: { transactionHash } });
     if (!exist) {
       const entity = new History();
       entity.address = address;
@@ -22,6 +24,13 @@ export class HistoryRepository extends Repository<History> {
       entity.amount = amount.toString();
       entity.amountInDecimal = Number(ethers.utils.formatUnits(amount, 6));
       entity.transactionHash = transactionHash;
+      if (tokenId) {
+        entity.tokenId = tokenId.toString();
+      }
+      if (supply) {
+        entity.supply = supply.toString();
+        entity.supplyInDecimal = supply.toNumber();
+      }
       return this.save(entity);
     }
   };
