@@ -14,7 +14,7 @@ export class MarketplaceRepository extends Repository<Marketplace> {
     startingTime: BigNumber,
     transactionHash: string,
   ): Promise<Marketplace | null> {
-    const exist = this.findOne({
+    const exist = await this.findOne({
       where: { transactionHash }
     })
     if (!exist) {
