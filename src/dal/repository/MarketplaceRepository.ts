@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import {BigNumber, ethers} from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { Marketplace } from "../entity";
 
 export class MarketplaceRepository extends Repository<Marketplace> {
@@ -15,8 +15,8 @@ export class MarketplaceRepository extends Repository<Marketplace> {
     transactionHash: string,
   ): Promise<Marketplace | null> {
     const exist = await this.findOne({
-      where: { transactionHash }
-    })
+      where: { transactionHash },
+    });
     if (!exist) {
       const marketplace = new Marketplace();
       marketplace.seller = owner;

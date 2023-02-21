@@ -16,4 +16,12 @@ export class UserRepository extends Repository<User> {
       return this.save(entity);
     }
   };
+
+  removeProductId = async (address: string, productId: number) => {
+    const user = await this.findOne({ where: { address } });
+    if (user) {
+      user.productIds = user.productIds.filter((id) => id !== productId);
+      return this.save(user);
+    }
+  };
 }

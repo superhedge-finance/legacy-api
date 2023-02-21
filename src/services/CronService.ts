@@ -80,6 +80,24 @@ export class CronService {
           lastBlockNumber,
         );
         await this.productService.syncHistories(product.id, HISTORY_TYPE.WITHDRAW, withdrawOptionEvents, WITHDRAW_TYPE.OPTION);
+
+        const matureEvents = await this.contractService.getProductPastEvents(
+          product.address,
+          "Mature",
+          lastBlockNumber - 50,
+          lastBlockNumber,
+        );
+        if (matureEvents.length > 0) {
+          const marketplaceEntities = await this.marketplaceRepository.find({
+            where: {
+              product: product.address,
+            },
+          });
+          for (const marketplaceEntity of marketplaceEntities) {
+            marketplaceEntity.isExpired = true;
+            await this.marketplaceRepository.save(marketplaceEntity);
+          }
+        }
       }
     });
   }

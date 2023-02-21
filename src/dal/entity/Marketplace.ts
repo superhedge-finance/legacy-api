@@ -54,6 +54,10 @@ export class Marketplace {
   @Property()
   transactionHash: string;
 
+  @Column({ default: false })
+  @Property()
+  isExpired: boolean;
+
   @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
   public created_at: Date;
 

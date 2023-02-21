@@ -1,5 +1,5 @@
 import { Injectable } from "@tsed/di";
-import { Contract, ethers } from "ethers";
+import { BigNumber, Contract, ethers } from "ethers";
 import axios from "axios";
 import { CreatedProductDto, StatsDto } from "../apis";
 import FACTORY_ABI from "./abis/SHFactory.json";
@@ -86,6 +86,12 @@ export class ContractService {
         image_uri: image_uri,
       },
     };
+  }
+
+  async getProductPrincipalBalance(address: string, product: string): Promise<boolean> {
+    const productInstance = new ethers.Contract(product, PRODUCT_ABI, this.provider);
+    const _principalBalance = await productInstance.principalBalance(address);
+    return _principalBalance.eq(BigNumber.from("0"));
   }
 
   async getPastEvents(eventName: string, fromBlock: number, toBlock: number): Promise<Array<CreatedProductDto>> {

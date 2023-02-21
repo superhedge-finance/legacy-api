@@ -85,6 +85,27 @@ export class EventsController {
                 .then(() => console.log("History saved"));
 
               this.userRepository.saveProductId(address, product.id).then(() => console.log("Product ID saved to user entity"));
+
+              this.contractService.getProductPrincipalBalance(address, product.address).then((_principal) => {
+                if (_principal) {
+                  this.userRepository.removeProductId(address, product.id).then(() => console.log("Product ID removed from user entity"));
+                }
+              });
+            }
+
+            if (eventName === "Mature") {
+              this.marketplaceRepository
+                .find({
+                  where: {
+                    product: product.address,
+                  },
+                })
+                .then((marketplaceEntities) => {
+                  for (const marketplaceEntity of marketplaceEntities) {
+                    marketplaceEntity.isExpired = true;
+                    this.marketplaceRepository.save(marketplaceEntity).then(() => console.log("Marketplace entity updated"));
+                  }
+                });
             }
           },
         );
