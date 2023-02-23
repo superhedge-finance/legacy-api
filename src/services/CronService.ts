@@ -90,7 +90,7 @@ export class CronService {
         if (matureEvents.length > 0) {
           const marketplaceEntities = await this.marketplaceRepository.find({
             where: {
-              product: product.address,
+              product_address: product.address,
             },
           });
           for (const marketplaceEntity of marketplaceEntities) {
