@@ -3,6 +3,7 @@ import { CycleDto } from "../../apis";
 import { User } from "./User";
 import { History } from "./History";
 import { Property } from "@tsed/schema";
+import { Marketplace } from "./Marketplace";
 
 @Entity("products")
 export class Product {
@@ -46,6 +47,9 @@ export class Product {
 
   @OneToOne(() => History, (history) => history.product)
   history: History;
+
+  @OneToOne(() => Marketplace, (marketplace) => marketplace.product)
+  marketplace: Marketplace;
 
   @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
   public created_at: Date;

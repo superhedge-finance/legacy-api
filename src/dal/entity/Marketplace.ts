@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne } from "typeorm";
 import { Property } from "@tsed/schema";
+import { Product } from "./Product";
 
 @Entity("marketplaces")
 export class Marketplace {
@@ -16,7 +17,7 @@ export class Marketplace {
 
   @Column()
   @Property()
-  product: string;
+  product_address: string;
 
   @Column()
   @Property()
@@ -57,6 +58,9 @@ export class Marketplace {
   @Column({ default: false })
   @Property()
   isExpired: boolean;
+
+  @OneToOne(() => Product, (product) => product.address)
+  product: Product;
 
   @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
   public created_at: Date;

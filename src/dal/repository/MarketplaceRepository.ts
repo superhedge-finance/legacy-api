@@ -21,7 +21,7 @@ export class MarketplaceRepository extends Repository<Marketplace> {
       const marketplace = new Marketplace();
       marketplace.seller = owner;
       marketplace.nft = nft;
-      marketplace.product = product;
+      marketplace.product_address = product;
       marketplace.tokenId = tokenId.toString();
       marketplace.tokenIdInDecimal = tokenId.toNumber();
       marketplace.quantity = quantity.toString();
