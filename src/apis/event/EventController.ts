@@ -97,7 +97,7 @@ export class EventsController {
               this.marketplaceRepository
                 .find({
                   where: {
-                    product: product.address,
+                    product_address: product.address,
                   },
                 })
                 .then((marketplaceEntities) => {
