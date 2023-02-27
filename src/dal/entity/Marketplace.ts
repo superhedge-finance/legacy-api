@@ -11,6 +11,10 @@ export class Marketplace {
   @Property()
   seller: string;
 
+  @Column({ nullable: true })
+  @Property()
+  buyer: string;
+
   @Column()
   @Property()
   nft: string;
@@ -39,6 +43,10 @@ export class Marketplace {
   @Property()
   payToken: string;
 
+  @Column({ nullable: true })
+  @Property()
+  unitPrice: string;
+
   @Column()
   @Property()
   price: string;
@@ -55,9 +63,21 @@ export class Marketplace {
   @Property()
   transactionHash: string;
 
+  @Column({ nullable: true })
+  @Property()
+  soldTransactionHash: string;
+
+  @Column({ nullable: true })
+  @Property()
+  cancelTransactionHash: string;
+
   @Column({ default: false })
   @Property()
   isExpired: boolean;
+
+  @Column({ default: false })
+  @Property()
+  isSold: boolean;
 
   @OneToOne(() => Product, (product) => product.address)
   product: Product;

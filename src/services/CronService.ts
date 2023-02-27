@@ -27,23 +27,6 @@ export class CronService {
       const pastEvents = await this.contractService.getPastEvents("ProductCreated", lastBlockNumber - 50, lastBlockNumber);
       await this.productService.syncProducts(pastEvents);
 
-      const pastItemListedEvents = await this.contractService.getMarketplacePastEvents("ItemListed", lastBlockNumber - 50, lastBlockNumber);
-      for (const event of pastItemListedEvents) {
-        if (event.args) {
-          await this.marketplaceRepository.syncItemListedEntity(
-            event.args.owner,
-            event.args.nft,
-            event.args.product,
-            event.args.tokenId,
-            event.args.quantity,
-            event.args.payToken,
-            event.args.pricePerItem,
-            event.args.startingTime,
-            event.transactionHash,
-          );
-        }
-      }
-
       const products = await this.productService.getProductsWithoutStatus();
       for (const product of products) {
         const stats = await this.contractService.getProductStats(product.address);
@@ -97,6 +80,81 @@ export class CronService {
             marketplaceEntity.isExpired = true;
             await this.marketplaceRepository.save(marketplaceEntity);
           }
+        }
+      }
+    });
+
+    cron.schedule("*/3 * * * *", async () => {
+      const lastBlockNumber = await this.contractService.getLatestBlockNumber();
+
+      const pastItemListedEvents = await this.contractService.getMarketplacePastEvents("ItemListed", lastBlockNumber - 50, lastBlockNumber);
+      for (const event of pastItemListedEvents) {
+        if (event.args) {
+          await this.marketplaceRepository.syncItemListedEntity(
+            event.args.owner,
+            event.args.nft,
+            event.args.product,
+            event.args.tokenId,
+            event.args.quantity,
+            event.args.payToken,
+            event.args.pricePerItem,
+            event.args.startingTime,
+            event.transactionHash,
+          );
+        }
+      }
+
+      const pastItemSoldEvents = await this.contractService.getMarketplacePastEvents("ItemSold", lastBlockNumber - 50, lastBlockNumber);
+      for (const event of pastItemSoldEvents) {
+        if (event.args) {
+          await this.marketplaceRepository.syncItemSoldEntity(
+            event.args.seller,
+            event.args.buyer,
+            event.args.nft,
+            event.args.product,
+            event.args.tokenId,
+            event.args.quantity,
+            event.args.payToken,
+            event.args.unitPrice,
+            event.args.pricePerItem,
+            event.transactionHash,
+          );
+        }
+      }
+
+      const pastItemCancelledEvents = await this.contractService.getMarketplacePastEvents(
+        "ItemCanceled",
+        lastBlockNumber - 50,
+        lastBlockNumber,
+      );
+      for (const event of pastItemCancelledEvents) {
+        if (event.args) {
+          await this.marketplaceRepository.syncItemCanceledEntity(
+            event.args.owner,
+            event.args.nft,
+            event.args.product,
+            event.args.tokenId,
+            event.transactionHash,
+          );
+        }
+      }
+
+      const pastItemUpdatedEvents = await this.contractService.getMarketplacePastEvents(
+        "ItemUpdated",
+        lastBlockNumber - 50,
+        lastBlockNumber,
+      );
+      for (const event of pastItemUpdatedEvents) {
+        if (event.args) {
+          await this.marketplaceRepository.syncItemUpdatedEntity(
+            event.args.owner,
+            event.args.nft,
+            event.args.product,
+            event.args.tokenId,
+            event.args.payToken,
+            event.args.newPrice,
+            event.transactionHash,
+          );
         }
       }
     });

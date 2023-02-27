@@ -127,6 +127,37 @@ export class EventsController {
             event.transactionHash,
           )
           .then((r) => console.log(r));
+      } else if (eventName === "ItemSold") {
+        this.marketplaceRepository
+          .syncItemSoldEntity(
+            event.args.seller,
+            event.args.buyer,
+            event.args.nft,
+            event.args.product,
+            event.args.tokenId,
+            event.args.quantity,
+            event.args.payToken,
+            event.args.unitPrice,
+            event.args.pricePerItem,
+            event.transactionHash,
+          )
+          .then((r) => console.log(r));
+      } else if (eventName === "ItemCanceled") {
+        this.marketplaceRepository
+          .syncItemCanceledEntity(event.args.owner, event.args.nft, event.args.product, event.args.tokenId, event.transactionHash)
+          .then((r) => console.log(r));
+      } else if (eventName === "ItemUpdated") {
+        this.marketplaceRepository
+          .syncItemUpdatedEntity(
+            event.args.owner,
+            event.args.nft,
+            event.args.product,
+            event.args.tokenId,
+            event.args.payToken,
+            event.args.newPrice,
+            event.transactionHash,
+          )
+          .then((r) => console.log(r));
       }
     });
   }
