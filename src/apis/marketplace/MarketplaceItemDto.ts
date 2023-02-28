@@ -15,6 +15,9 @@ export class MarketplaceItemDto {
   mtmPrice: number;
 
   @Property()
+  quantity: number;
+
+  @Property()
   underlying: string;
 
   @Property()
