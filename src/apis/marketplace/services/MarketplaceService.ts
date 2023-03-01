@@ -14,6 +14,7 @@ export class MarketplaceService {
     const listedItems = await this.marketplaceRepository
       .createQueryBuilder("marketplace")
       .where("marketplace.isExpired = false")
+      .andWhere("marketplace.isSold = false")
       .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
       .getMany();
 
@@ -39,6 +40,7 @@ export class MarketplaceService {
       .createQueryBuilder("marketplace")
       .where("marketplace.seller = :address", { address })
       .andWhere("marketplace.isExpired = false")
+      .andWhere("marketplace.isSold = false")
       .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
       .getMany();
 
