@@ -124,6 +124,7 @@ export class EventsController {
             event.args.payToken,
             event.args.pricePerItem,
             event.args.startingTime,
+            event.args.listingId,
             event.transactionHash,
           )
           .then((r) => console.log(r));
@@ -132,29 +133,26 @@ export class EventsController {
           .syncItemSoldEntity(
             event.args.seller,
             event.args.buyer,
-            event.args.nft,
-            event.args.product,
-            event.args.tokenId,
-            event.args.quantity,
-            event.args.payToken,
             event.args.unitPrice,
-            event.args.pricePerItem,
+            event.args.listingId,
             event.transactionHash,
           )
           .then((r) => console.log(r));
       } else if (eventName === "ItemCanceled") {
         this.marketplaceRepository
-          .syncItemCanceledEntity(event.args.owner, event.args.nft, event.args.product, event.args.tokenId, event.transactionHash)
+          .syncItemCanceledEntity(
+              event.args.owner,
+              event.args.listingId,
+              event.transactionHash
+          )
           .then((r) => console.log(r));
       } else if (eventName === "ItemUpdated") {
         this.marketplaceRepository
           .syncItemUpdatedEntity(
             event.args.owner,
-            event.args.nft,
-            event.args.product,
-            event.args.tokenId,
             event.args.payToken,
             event.args.newPrice,
+            event.args.listingId,
             event.transactionHash,
           )
           .then((r) => console.log(r));

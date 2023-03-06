@@ -9,6 +9,9 @@ export class MarketplaceItemDto {
   tokenId: string;
 
   @Property()
+  listingId: string;
+
+  @Property()
   offerPrice: number;
 
   @Property()

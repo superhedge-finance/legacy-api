@@ -23,15 +23,15 @@ export class MarketplaceController {
     return await this.marketplaceService.getUserListedItems(address);
   }
 
-  @Get("/item/:id")
+  @Get("/item/:listing_id")
   @Returns(200, MarketplaceItemFullDto)
-  async getItem(@PathParams("id") id: number): Promise<MarketplaceItemFullDto | null> {
-    return this.marketplaceService.getItem(id);
+  async getItem(@PathParams("listing_id") listing_id: number): Promise<MarketplaceItemFullDto | null> {
+    return this.marketplaceService.getItem(listing_id);
   }
 
-  @Get("/token/:token_id")
+  @Get("/token/:listing_id")
   @Returns(200, MarketplaceItemDetailDto)
-  async getTokenItem(@PathParams("token_id") token_id: string): Promise<MarketplaceItemDetailDto | null> {
-    return this.marketplaceService.getTokenItem(token_id);
+  async getTokenItem(@PathParams("listing_id") listing_id: string): Promise<MarketplaceItemDetailDto | null> {
+    return this.marketplaceService.getTokenItem(listing_id);
   }
 }

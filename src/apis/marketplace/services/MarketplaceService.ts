@@ -23,6 +23,7 @@ export class MarketplaceService {
       return {
         id: item.id,
         tokenId: item.tokenId,
+        listingId: item.listingId,
         offerPrice: item.priceInDecimal,
         mtmPrice: 0,
         quantity: item.quantityInDecimal,
@@ -49,6 +50,7 @@ export class MarketplaceService {
       return {
         id: item.id,
         tokenId: item.tokenId,
+        listingId: item.listingId,
         offerPrice: item.priceInDecimal,
         mtmPrice: 0,
         quantity: item.quantityInDecimal,
@@ -61,10 +63,10 @@ export class MarketplaceService {
     });
   }
 
-  async getItem(id: number): Promise<MarketplaceItemFullDto | null> {
+  async getItem(listing_id: number): Promise<MarketplaceItemFullDto | null> {
     const item = await this.marketplaceRepository
       .createQueryBuilder("marketplace")
-      .where("marketplace.id = :id", { id })
+      .where("marketplace.listing_id = :listing_id", { listing_id })
       .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
       .getOne();
 
@@ -74,6 +76,7 @@ export class MarketplaceService {
     return {
       id: item.id,
       tokenId: item.tokenId,
+      listingId: item.listingId,
       offerPrice: item.priceInDecimal,
       mtmPrice: 0,
       quantity: item.quantityInDecimal,
@@ -87,10 +90,10 @@ export class MarketplaceService {
     };
   }
 
-  async getTokenItem(token_id: string): Promise<MarketplaceItemDetailDto | null> {
+  async getTokenItem(listing_id: string): Promise<MarketplaceItemDetailDto | null> {
     const item = await this.marketplaceRepository
       .createQueryBuilder("marketplace")
-      .where("marketplace.token_id = :token_id", { token_id })
+      .where("marketplace.listing_id = :listing_id", { listing_id })
       .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
       .getOne();
 
@@ -99,7 +102,7 @@ export class MarketplaceService {
     const offers = await this.marketplaceRepository.find({
       where: {
         product_address: item.product_address,
-        tokenId: token_id,
+        listingId: listing_id,
       },
     });
 
@@ -107,6 +110,7 @@ export class MarketplaceService {
     return {
       id: item.id,
       tokenId: item.tokenId,
+      listingId: item.listingId,
       offerPrice: item.priceInDecimal,
       mtmPrice: 0,
       quantity: item.quantityInDecimal,
