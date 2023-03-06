@@ -111,13 +111,8 @@ export class CronService {
           await this.marketplaceRepository.syncItemSoldEntity(
             event.args.seller,
             event.args.buyer,
-            event.args.nft,
-            event.args.product,
-            event.args.tokenId,
-            event.args.quantity,
-            event.args.payToken,
             event.args.unitPrice,
-            event.args.pricePerItem,
+            event.args.listingId,
             event.transactionHash,
           );
         }
