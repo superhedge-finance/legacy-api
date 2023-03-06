@@ -99,6 +99,7 @@ export class CronService {
             event.args.payToken,
             event.args.pricePerItem,
             event.args.startingTime,
+            event.args.listingId,
             event.transactionHash,
           );
         }
@@ -131,9 +132,7 @@ export class CronService {
         if (event.args) {
           await this.marketplaceRepository.syncItemCanceledEntity(
             event.args.owner,
-            event.args.nft,
-            event.args.product,
-            event.args.tokenId,
+            event.args.listingId,
             event.transactionHash,
           );
         }
@@ -148,11 +147,9 @@ export class CronService {
         if (event.args) {
           await this.marketplaceRepository.syncItemUpdatedEntity(
             event.args.owner,
-            event.args.nft,
-            event.args.product,
-            event.args.tokenId,
             event.args.payToken,
             event.args.newPrice,
+            event.args.listingId,
             event.transactionHash,
           );
         }

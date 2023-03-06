@@ -12,6 +12,7 @@ export class MarketplaceRepository extends Repository<Marketplace> {
     payToken: string,
     price: BigNumber,
     startingTime: BigNumber,
+    listingId: BigNumber,
     transactionHash: string,
   ): Promise<Marketplace | null> {
     const exist = await this.findOne({
@@ -30,6 +31,7 @@ export class MarketplaceRepository extends Repository<Marketplace> {
       marketplace.price = price.toString();
       marketplace.priceInDecimal = Number(ethers.utils.formatUnits(price, 6));
       marketplace.startingTime = startingTime.toNumber();
+      marketplace.listingId = listingId.toString();
       marketplace.transactionHash = transactionHash;
       return this.save(marketplace);
     }
@@ -39,22 +41,13 @@ export class MarketplaceRepository extends Repository<Marketplace> {
   async syncItemSoldEntity(
     seller: string,
     buyer: string,
-    nft: string,
-    product: string,
-    tokenId: BigNumber,
-    quantity: BigNumber,
-    payToken: string,
     unitPrice: BigNumber,
-    pricePerItem: BigNumber,
+    listingId: BigNumber,
     transactionHash: string,
   ) {
     const item = await this.findOne({
       where: {
-        seller: seller,
-        nft: nft,
-        product_address: product,
-        payToken: payToken,
-        tokenId: tokenId.toString()
+        listingId: listingId.toString()
       }
     })
     if (item) {
@@ -66,13 +59,10 @@ export class MarketplaceRepository extends Repository<Marketplace> {
     }
   }
 
-  async syncItemCanceledEntity(owner: string, nft: string, product: string, tokenId: BigNumber, transactionHash: string) {
+  async syncItemCanceledEntity(owner: string, listingId: BigNumber, transactionHash: string) {
     const item = await this.findOne({
       where: {
-        seller: owner,
-        nft: nft,
-        product_address: product,
-        tokenId: tokenId.toString()
+        listingId: listingId.toString(),
       }
     })
     if (item) {
@@ -84,25 +74,20 @@ export class MarketplaceRepository extends Repository<Marketplace> {
 
   async syncItemUpdatedEntity(
     owner: string,
-    nft: string,
-    product: string,
-    tokenId: BigNumber,
     payToken: string,
     newPrice: BigNumber,
+    listingId: BigNumber,
     transactionHash: string,
   ) {
     const item = await this.findOne({
       where: {
-        seller: owner,
-        nft: nft,
-        payToken: payToken,
-        product_address: product,
-        tokenId: tokenId.toString()
+        listingId: listingId.toString()
       }
     })
     if (item) {
       item.price = newPrice.toString()
       item.priceInDecimal = Number(ethers.utils.formatUnits(newPrice, 6));
+      item.payToken = payToken;
       return this.save(item)
     }
   }

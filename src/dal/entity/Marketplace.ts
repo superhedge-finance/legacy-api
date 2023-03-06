@@ -17,6 +17,10 @@ export class Marketplace {
 
   @Column()
   @Property()
+  listingId: string;
+
+  @Column()
+  @Property()
   nft: string;
 
   @Column()

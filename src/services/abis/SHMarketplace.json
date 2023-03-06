@@ -22,21 +22,9 @@
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "nft",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "product",
-        "type": "address"
-      },
-      {
         "indexed": false,
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "listingId",
         "type": "uint256"
       }
     ],
@@ -93,6 +81,12 @@
         "internalType": "uint256",
         "name": "startingTime",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
       }
     ],
     "name": "ItemListed",
@@ -114,36 +108,6 @@
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "nft",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "product",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "quantity",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "payToken",
-        "type": "address"
-      },
-      {
         "indexed": false,
         "internalType": "int256",
         "name": "unitPrice",
@@ -152,7 +116,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "pricePerItem",
+        "name": "listingId",
         "type": "uint256"
       }
     ],
@@ -169,24 +133,6 @@
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "nft",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "product",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
         "indexed": false,
         "internalType": "address",
         "name": "payToken",
@@ -196,6 +142,12 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "newPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "listingId",
         "type": "uint256"
       }
     ],
@@ -263,13 +215,8 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_nftAddress",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_listingId",
         "type": "uint256"
       },
       {
@@ -291,13 +238,8 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_nftAddress",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_listingId",
         "type": "uint256"
       }
     ],
@@ -402,31 +344,36 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
       }
     ],
     "name": "listings",
     "outputs": [
       {
         "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "quantity",
         "type": "uint256"
       },
       {
+        "internalType": "uint256",
+        "name": "pricePerItem",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
-        "name": "productAddress",
+        "name": "nftAddress",
         "type": "address"
       },
       {
@@ -435,13 +382,31 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "pricePerItem",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "productAddress",
+        "type": "address"
       },
       {
         "internalType": "uint256",
         "name": "startingTime",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nextListingId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -607,13 +572,8 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_nftAddress",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_listingId",
         "type": "uint256"
       },
       {
