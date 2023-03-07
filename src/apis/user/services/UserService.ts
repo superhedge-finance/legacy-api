@@ -30,7 +30,10 @@ export class UserService {
 
   async getPositions(address: string): Promise<Array<Product>> {
     const user = await this.userRepository.findOne({ where: { address } });
-    if (!user) throw new Error("User not found");
+    if (!user) {
+      await this.create({ address, username: "", email: "", subscribed: false });
+      return [];
+    }
     return this.productRepository.find({
       where: {
         id: In(user.productIds),
