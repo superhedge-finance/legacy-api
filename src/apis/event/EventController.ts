@@ -1,7 +1,7 @@
 import { Controller, Inject } from "@tsed/di";
 import { ContractService } from "../../services/ContractService";
 import { ProductService } from "../product/services/ProductService";
-import { HistoryRepository, MarketplaceRepository, UserRepository } from "../../dal";
+import { HistoryRepository, MarketplaceRepository, UserRepository, Product } from "../../dal";
 import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../services/dto/enum";
 
 @Controller("/events")
@@ -56,7 +56,6 @@ export class EventsController {
             }
 
             if (["Deposit", "WithdrawPrincipal", "WithdrawCoupon", "WithdrawOption"].includes(eventName)) {
-              console.log("event", event);
               let withdrawType: WITHDRAW_TYPE = WITHDRAW_TYPE.NONE;
               let address = "";
               if (eventName === "WithdrawPrincipal") {
@@ -112,7 +111,7 @@ export class EventsController {
       });
     });
 
-    this.contractService.subscribeToMarketplaceEvents(["ItemListed", "ItemSold", "ItemCanceled", "ItemUpdated"], (eventName, event) => {
+    this.contractService.subscribeToMarketplaceEvents(["ItemListed", "ItemSold", "ItemCanceled", "ItemUpdated"], async (eventName, event) => {
       if (eventName === "ItemListed") {
         this.marketplaceRepository
           .syncItemListedEntity(
@@ -129,6 +128,15 @@ export class EventsController {
           )
           .then((r) => console.log(r));
       } else if (eventName === "ItemSold") {
+        let listingId = event.args.listingId;
+        let buyer = event.args.buyer;
+        const marketplace = await this.marketplaceRepository
+          .createQueryBuilder("marketplace")
+          .where("marketplace.listing_id = :listingId", { listingId: listingId.toString() })
+          .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
+          .getOne();
+        if (!marketplace) return null;
+
         this.marketplaceRepository
           .syncItemSoldEntity(
             event.args.seller,
@@ -137,7 +145,12 @@ export class EventsController {
             event.args.listingId,
             event.transactionHash,
           )
-          .then((r) => console.log(r));
+          .then(() => {
+            this.userRepository
+              .saveProductId(
+                buyer, marketplace.product.id
+              ).then(() => console.log("Item sold & Product saved to buyer's position"));
+          });
       } else if (eventName === "ItemCanceled") {
         this.marketplaceRepository
           .syncItemCanceledEntity(

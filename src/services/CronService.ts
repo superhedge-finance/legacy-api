@@ -4,7 +4,7 @@ import { Inject, Injectable } from "@tsed/di";
 import { ContractService } from "./ContractService";
 import { ProductService } from "../apis/product/services/ProductService";
 import { HISTORY_TYPE, WITHDRAW_TYPE } from "./dto/enum";
-import { MarketplaceRepository } from "../dal";
+import { MarketplaceRepository, UserRepository, Product } from "../dal";
 
 @Injectable()
 export class CronService {
@@ -19,6 +19,9 @@ export class CronService {
 
   @Inject(MarketplaceRepository)
   private readonly marketplaceRepository: MarketplaceRepository;
+
+  @Inject(UserRepository)
+  private readonly userRepository: UserRepository;
 
   $onInit() {
     // https://crontab.guru/#*/3_*_*_*_* (At every 3th minute)
@@ -108,13 +111,27 @@ export class CronService {
       const pastItemSoldEvents = await this.contractService.getMarketplacePastEvents("ItemSold", lastBlockNumber - 50, lastBlockNumber);
       for (const event of pastItemSoldEvents) {
         if (event.args) {
+          let listingId = event.args.listingId;
+          let buyer = event.args.buyer;
+          const marketplace = await this.marketplaceRepository
+            .createQueryBuilder("marketplace")
+            .where("marketplace.listing_id = :listingId", { listingId: listingId.toString() })
+            .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
+            .getOne();
+
+          if (!marketplace) return null;
+
           await this.marketplaceRepository.syncItemSoldEntity(
             event.args.seller,
             event.args.buyer,
             event.args.unitPrice,
             event.args.listingId,
             event.transactionHash,
-          );
+          ).then(async () => {
+            await this.userRepository.saveProductId(
+              buyer, marketplace.product.id
+            );
+          });
         }
       }
 

@@ -55,7 +55,7 @@ export class MarketplaceRepository extends Repository<Marketplace> {
       item.buyer = buyer;
       item.isSold = true;
       item.soldTransactionHash = transactionHash;
-      await this.save(item);
+      return this.save(item);
     }
   }
 
