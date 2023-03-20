@@ -1,5 +1,5 @@
 import { Property } from "@tsed/schema";
-import { CycleDto } from "../product/dto/CycleDto";
+import { CycleDto } from "../../product/dto/CycleDto";
 
 export class MarketplaceItemDto {
   @Property()

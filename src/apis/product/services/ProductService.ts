@@ -6,7 +6,7 @@ import { CreatedProductDto } from "../dto/CreatedProductDto";
 import { CycleDto } from "../dto/CycleDto";
 import { StatsDto } from "../dto/StatsDto";
 import { HistoryRepository } from "../../../dal/repository/HistoryRepository";
-import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../../services/dto/enum";
+import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../../shared/enum";
 
 @Injectable()
 export class ProductService {
@@ -20,6 +20,7 @@ export class ProductService {
   private readonly withdrawRequestRepository: WithdrawRequestRepository;
 
   create(
+    chainId: number,
     address: string,
     name: string,
     underlying: string,
@@ -29,6 +30,7 @@ export class ProductService {
     cycle: CycleDto,
   ): Promise<Product> {
     const entity = new Product();
+    entity.chainId = chainId;
     entity.address = address;
     entity.name = name;
     entity.underlying = underlying;
@@ -39,19 +41,21 @@ export class ProductService {
     return this.productRepository.save(entity);
   }
 
-  getProductsWithoutStatus(): Promise<Array<Product>> {
+  getProductsWithoutStatus(chainId: number): Promise<Array<Product>> {
     return this.productRepository.find({
       where: {
+        chainId: chainId,
         isPaused: false,
       },
     });
   }
 
-  getProducts(): Promise<Array<Product>> {
+  getProducts(chainId: number): Promise<Array<Product>> {
     return this.productRepository.find({
       where: {
         status: Not(0),
         isPaused: false,
+        chainId: chainId,
       },
       order: {
         created_at: "ASC",
@@ -59,22 +63,24 @@ export class ProductService {
     });
   }
 
-  getProduct(address: string): Promise<Product | null> {
+  getProduct(chainId: number, address: string): Promise<Product | null> {
     return this.productRepository.findOne({
       where: {
         address: address,
+        chainId: chainId,
         // status: Not(0),
         isPaused: false,
       },
     });
   }
 
-  async syncProducts(pastEvents: CreatedProductDto[]): Promise<void> {
+  async syncProducts(chainId: number, pastEvents: CreatedProductDto[]): Promise<void> {
     await Promise.all(
       pastEvents.map(async (product: CreatedProductDto) => {
-        const existProduct = await this.getProduct(product.address);
+        const existProduct = await this.getProduct(chainId, product.address);
         if (!existProduct) {
           return this.create(
+            chainId,
             product.address,
             product.name,
             product.underlying,
@@ -126,9 +132,9 @@ export class ProductService {
     }
   }
 
-  async updateProduct(address: string, stats: StatsDto): Promise<UpdateResult> {
+  async updateProduct(chainId: number, address: string, stats: StatsDto): Promise<UpdateResult> {
     return this.productRepository.update(
-      { address: address },
+      { chainId, address: address },
       {
         status: stats.status,
         currentCapacity: stats.currentCapacity,
@@ -137,9 +143,9 @@ export class ProductService {
     );
   }
 
-  async updateProductPauseStatus(address: string, isPaused: boolean): Promise<UpdateResult> {
+  async updateProductPauseStatus(chainId: number, address: string, isPaused: boolean): Promise<UpdateResult> {
     return this.productRepository.update(
-      { address: address },
+      { chainId, address: address },
       {
         isPaused: isPaused,
       },
@@ -154,7 +160,7 @@ export class ProductService {
     await this.withdrawRequestRepository.save(entity);
   }
 
-  async cancelWithdraw(address: string, productAddress: string): Promise<void> {
+  async cancelWithdraw(chainId: number, address: string, productAddress: string): Promise<void> {
     const request = await this.withdrawRequestRepository.findOne({
       where: {
         address: address,

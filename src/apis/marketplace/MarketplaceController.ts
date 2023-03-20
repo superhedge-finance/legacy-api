@@ -1,10 +1,11 @@
 import { Controller, Inject } from "@tsed/di";
 import { Get, Returns } from "@tsed/schema";
-import { PathParams } from "@tsed/platform-params";
+import { PathParams, QueryParams } from "@tsed/platform-params";
 import { MarketplaceService } from "./services/MarketplaceService";
-import { MarketplaceItemDto } from "./MarketplaceItemDto";
-import { MarketplaceItemFullDto } from "./MarketplaceItemFullDto";
-import { MarketplaceItemDetailDto } from "./MarketplaceItemDetailDto";
+import { MarketplaceItemDto } from "./dto/MarketplaceItemDto";
+import { MarketplaceItemFullDto } from "./dto/MarketplaceItemFullDto";
+import { MarketplaceItemDetailDto } from "./dto/MarketplaceItemDetailDto";
+import { SUPPORT_CHAIN_IDS } from "../../shared/enum";
 
 @Controller("/marketplace")
 export class MarketplaceController {
@@ -13,25 +14,31 @@ export class MarketplaceController {
 
   @Get("/")
   @Returns(200, Array<MarketplaceItemDto>)
-  async getListedItems(): Promise<MarketplaceItemDto[]> {
-    return await this.marketplaceService.getListedItems();
+  async getListedItems(@QueryParams("chainId") chainId: number): Promise<MarketplaceItemDto[]> {
+    return await this.marketplaceService.getListedItems(chainId || SUPPORT_CHAIN_IDS.GOERLI);
   }
 
   @Get("/:address")
   @Returns(200, Array<MarketplaceItemDto>)
-  async getUserListedItems(@PathParams("address") address: string): Promise<MarketplaceItemDto[]> {
-    return await this.marketplaceService.getUserListedItems(address);
+  async getUserListedItems(@PathParams("address") address: string, @QueryParams("chainId") chainId: number): Promise<MarketplaceItemDto[]> {
+    return await this.marketplaceService.getUserListedItems(address, chainId);
   }
 
   @Get("/item/:listing_id")
   @Returns(200, MarketplaceItemFullDto)
-  async getItem(@PathParams("listing_id") listing_id: number): Promise<MarketplaceItemFullDto | null> {
-    return this.marketplaceService.getItem(listing_id);
+  async getItem(
+    @PathParams("listing_id") listing_id: number,
+    @QueryParams("chainId") chainId: number,
+  ): Promise<MarketplaceItemFullDto | null> {
+    return this.marketplaceService.getItem(listing_id, chainId);
   }
 
   @Get("/token/:listing_id")
   @Returns(200, MarketplaceItemDetailDto)
-  async getTokenItem(@PathParams("listing_id") listing_id: string): Promise<MarketplaceItemDetailDto | null> {
-    return this.marketplaceService.getTokenItem(listing_id);
+  async getTokenItem(
+    @PathParams("listing_id") listing_id: string,
+    @QueryParams("chainId") chainId: number,
+  ): Promise<MarketplaceItemDetailDto | null> {
+    return this.marketplaceService.getTokenItem(listing_id, chainId);
   }
 }

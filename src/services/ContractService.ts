@@ -5,27 +5,39 @@ import { CreatedProductDto, StatsDto } from "../apis";
 import FACTORY_ABI from "./abis/SHFactory.json";
 import PRODUCT_ABI from "./abis/SHProduct.json";
 import MARKETPLACE_ABI from "./abis/SHMarketplace.json";
+import { MARKETPLACE_ADDRESS, RPC_PROVIDERS, SH_FACTORY_ADDRESS, SUPPORT_CHAINS } from "../shared/constants";
 
 @Injectable()
 export class ContractService {
-  private readonly factoryContract: Contract;
-  private readonly marketplaceContract: Contract;
-  private readonly provider: ethers.providers.JsonRpcProvider;
+  private readonly factoryContract: { [chainId: number]: Contract } = {};
+  private readonly marketplaceContract: { [chainId: number]: Contract } = {};
+  private readonly provider: { [chainId: number]: ethers.providers.JsonRpcProvider } = {};
 
   constructor() {
-    this.provider = new ethers.providers.JsonRpcProvider("https://goerli.blockpi.network/v1/rpc/public");
-    this.factoryContract = new ethers.Contract(process.env.FACTORY_CONTRACT_ADDRESS as string, FACTORY_ABI, this.provider);
-    this.marketplaceContract = new ethers.Contract(process.env.MARKETPLACE_CONTRACT_ADDRESS as string, MARKETPLACE_ABI, this.provider);
+    for (const chainId of SUPPORT_CHAINS) {
+      this.provider[chainId] = new ethers.providers.StaticJsonRpcProvider(RPC_PROVIDERS[chainId]);
+      this.factoryContract[chainId] = new ethers.Contract(SH_FACTORY_ADDRESS[chainId], FACTORY_ABI, this.provider[chainId]);
+      this.marketplaceContract[chainId] = new ethers.Contract(
+        MARKETPLACE_ADDRESS[chainId] as string,
+        MARKETPLACE_ABI,
+        this.provider[chainId],
+      );
+    }
   }
 
-  subscribeToEvents(eventName: string, callback: (event: any) => void) {
-    this.factoryContract.on(eventName, (...event) => {
+  subscribeToEvents(chainId: number, eventName: string, callback: (event: any) => void) {
+    this.factoryContract[chainId].on(eventName, (...event) => {
       callback(event);
     });
   }
 
-  subscribeToProductEvents(productAddress: string, eventNames: string[], callback: (eventName: string, event: any) => void) {
-    const productContract = new ethers.Contract(productAddress, PRODUCT_ABI, this.provider);
+  subscribeToProductEvents(
+    chainId: number,
+    productAddress: string,
+    eventNames: string[],
+    callback: (eventName: string, event: any) => void,
+  ) {
+    const productContract = new ethers.Contract(productAddress, PRODUCT_ABI, this.provider[chainId]);
     for (const eventName of eventNames) {
       productContract.on(eventName, (...event) => {
         callback(eventName, event[event.length - 1]);
@@ -33,8 +45,8 @@ export class ContractService {
     }
   }
 
-  subscribeToMarketplaceEvents(eventNames: string[], callback: (eventName: string, event: any) => void) {
-    const marketplaceContract = new ethers.Contract(process.env.MARKETPLACE_CONTRACT_ADDRESS as string, MARKETPLACE_ABI, this.provider);
+  subscribeToMarketplaceEvents(chainId: number, eventNames: string[], callback: (eventName: string, event: any) => void) {
+    const marketplaceContract = new ethers.Contract(MARKETPLACE_ADDRESS[chainId], MARKETPLACE_ABI, this.provider[chainId]);
     for (const eventName of eventNames) {
       marketplaceContract.on(eventName, (...event) => {
         callback(eventName, event[event.length - 1]);
@@ -42,8 +54,8 @@ export class ContractService {
     }
   }
 
-  async eventToArgs(event: any): Promise<CreatedProductDto> {
-    const stats = await this.getProductStats(String(event.args?.product));
+  async eventToArgs(chainId: number, event: any): Promise<CreatedProductDto> {
+    const stats = await this.getProductStats(chainId, String(event.args?.product));
 
     return {
       ...event.args,
@@ -54,8 +66,8 @@ export class ContractService {
     };
   }
 
-  async getProductStats(address: string): Promise<StatsDto> {
-    const productInstance = new ethers.Contract(address, PRODUCT_ABI, this.provider);
+  async getProductStats(chainId: number, address: string): Promise<StatsDto> {
+    const productInstance = new ethers.Contract(address, PRODUCT_ABI, this.provider[chainId]);
     const _status = await productInstance.status();
     const _currentCapacity = await productInstance.currentCapacity();
     const _issuanceCycle = await productInstance.issuanceCycle();
@@ -88,39 +100,39 @@ export class ContractService {
     };
   }
 
-  async getProductPrincipalBalance(address: string, product: string): Promise<boolean> {
-    const productInstance = new ethers.Contract(product, PRODUCT_ABI, this.provider);
+  async getProductPrincipalBalance(chainId: number, address: string, product: string): Promise<boolean> {
+    const productInstance = new ethers.Contract(product, PRODUCT_ABI, this.provider[chainId]);
     const _principalBalance = await productInstance.principalBalance(address);
     return _principalBalance.eq(BigNumber.from("0"));
   }
 
-  async getPastEvents(eventName: string, fromBlock: number, toBlock: number): Promise<Array<CreatedProductDto>> {
-    const events = await this.factoryContract.queryFilter(this.factoryContract.filters[eventName](), fromBlock, toBlock);
+  async getPastEvents(chainId: number, eventName: string, fromBlock: number, toBlock: number): Promise<Array<CreatedProductDto>> {
+    const events = await this.factoryContract[chainId].queryFilter(this.factoryContract[chainId].filters[eventName](), fromBlock, toBlock);
 
     const parsedEvents: CreatedProductDto[] = [];
     for (const event of events) {
-      const parsed = await this.eventToArgs(event);
+      const parsed = await this.eventToArgs(chainId, event);
       parsedEvents.push(parsed);
     }
 
     return parsedEvents;
   }
 
-  async getMarketplacePastEvents(eventName: string, fromBlock: number, toBlock: number) {
-    return await this.marketplaceContract.queryFilter(this.marketplaceContract.filters[eventName](), fromBlock, toBlock);
+  async getMarketplacePastEvents(chainId: number, eventName: string, fromBlock: number, toBlock: number) {
+    return await this.marketplaceContract[chainId].queryFilter(this.marketplaceContract[chainId].filters[eventName](), fromBlock, toBlock);
   }
 
-  async getProductPastEvents(address: string, eventName: string, fromBlock: number, toBlock: number): Promise<any> {
-    const productInstance = new ethers.Contract(address, PRODUCT_ABI, this.provider);
+  async getProductPastEvents(chainId: number, address: string, eventName: string, fromBlock: number, toBlock: number): Promise<any> {
+    const productInstance = new ethers.Contract(address, PRODUCT_ABI, this.provider[chainId]);
     return await productInstance.queryFilter(productInstance.filters[eventName](), fromBlock, toBlock);
   }
 
-  async validateWithdrawRequest(address: string, product: string): Promise<string> {
-    const productInstance = new ethers.Contract(product, PRODUCT_ABI, this.provider);
+  async validateWithdrawRequest(chainId: number, address: string, product: string): Promise<string> {
+    const productInstance = new ethers.Contract(product, PRODUCT_ABI, this.provider[chainId]);
     return await productInstance.currentTokenId().toString();
   }
 
-  async getLatestBlockNumber(): Promise<number> {
-    return this.provider.getBlockNumber();
+  async getLatestBlockNumber(chainId: number): Promise<number> {
+    return this.provider[chainId].getBlockNumber();
   }
 }

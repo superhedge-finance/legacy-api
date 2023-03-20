@@ -2,7 +2,8 @@ import { Controller, Inject } from "@tsed/di";
 import { ContractService } from "../../services/ContractService";
 import { ProductService } from "../product/services/ProductService";
 import { HistoryRepository, MarketplaceRepository, UserRepository, Product } from "../../dal";
-import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../services/dto/enum";
+import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../shared/enum";
+import { SUPPORT_CHAINS } from "../../shared/constants";
 
 @Controller("/events")
 export class EventsController {
@@ -22,154 +23,161 @@ export class EventsController {
   private readonly marketplaceRepository: MarketplaceRepository;
 
   $onInit() {
-    this.contractService.subscribeToEvents("ProductCreated", () => {
-      this.contractService.getLatestBlockNumber().then((blockNumber) => {
-        this.contractService.getPastEvents("ProductCreated", blockNumber - 10, blockNumber).then((pastEvents) => {
-          this.productService.syncProducts(pastEvents).then((r) => console.log(r));
+    for (const chainId of SUPPORT_CHAINS) {
+      this.contractService.subscribeToEvents(chainId, "ProductCreated", () => {
+        this.contractService.getLatestBlockNumber(chainId).then((blockNumber) => {
+          this.contractService.getPastEvents(chainId, "ProductCreated", blockNumber - 10, blockNumber).then((pastEvents) => {
+            this.productService.syncProducts(chainId, pastEvents).then((r) => console.log(r));
+          });
         });
       });
-    });
 
-    this.productService.getProductsWithoutStatus().then((products) => {
-      products.forEach((product) => {
-        this.contractService.subscribeToProductEvents(
-          product.address,
-          [
-            "Deposit",
-            "WithdrawPrincipal",
-            "WithdrawCoupon",
-            "WithdrawOption",
-            "FundAccept",
-            "FundLock",
-            "Issuance",
-            "Mature",
-            "Unpaused",
-            "Paused",
-          ],
-          (eventName, event) => {
-            if (eventName === "Paused" || eventName === "Unpaused") {
-              this.productService.updateProductPauseStatus(product.address, eventName === "Paused").then((r) => console.log(r));
-            } else {
-              this.contractService.getProductStats(product.address).then((stats) => {
-                this.productService.updateProduct(product.address, stats).then((r) => console.log(r));
-              });
-            }
-
-            if (["Deposit", "WithdrawPrincipal", "WithdrawCoupon", "WithdrawOption"].includes(eventName)) {
-              let withdrawType: WITHDRAW_TYPE = WITHDRAW_TYPE.NONE;
-              let address = "";
-              if (eventName === "WithdrawPrincipal") {
-                withdrawType = WITHDRAW_TYPE.PRINCIPAL;
-                address = event.args._to;
-              } else if (eventName === "WithdrawCoupon") {
-                withdrawType = WITHDRAW_TYPE.COUPON;
-                address = event.args._to;
-              } else if (eventName === "WithdrawOption") {
-                withdrawType = WITHDRAW_TYPE.OPTION;
-                address = event.args._to;
+      this.productService.getProductsWithoutStatus(chainId).then((products) => {
+        products.forEach((product) => {
+          this.contractService.subscribeToProductEvents(
+            chainId,
+            product.address,
+            [
+              "Deposit",
+              "WithdrawPrincipal",
+              "WithdrawCoupon",
+              "WithdrawOption",
+              "FundAccept",
+              "FundLock",
+              "Issuance",
+              "Mature",
+              "Unpaused",
+              "Paused",
+            ],
+            (eventName, event) => {
+              if (eventName === "Paused" || eventName === "Unpaused") {
+                this.productService.updateProductPauseStatus(chainId, product.address, eventName === "Paused").then((r) => console.log(r));
               } else {
-                address = event.args._from;
+                this.contractService.getProductStats(chainId, product.address).then((stats) => {
+                  this.productService.updateProduct(chainId, product.address, stats).then((r) => console.log(r));
+                });
               }
-              this.historyRepository
-                .createHistory(
-                  address,
-                  event.args._amount,
-                  event.transactionHash,
-                  product.id,
-                  eventName === "Deposit" ? HISTORY_TYPE.DEPOSIT : HISTORY_TYPE.WITHDRAW,
-                  withdrawType,
-                  event.args._currentTokenId,
-                  event.args._supply,
-                )
-                .then(() => console.log("History saved"));
 
-              this.userRepository.saveProductId(address, product.id).then(() => console.log("Product ID saved to user entity"));
-
-              this.contractService.getProductPrincipalBalance(address, product.address).then((_principal) => {
-                if (_principal) {
-                  this.userRepository.removeProductId(address, product.id).then(() => console.log("Product ID removed from user entity"));
+              if (["Deposit", "WithdrawPrincipal", "WithdrawCoupon", "WithdrawOption"].includes(eventName)) {
+                let withdrawType: WITHDRAW_TYPE = WITHDRAW_TYPE.NONE;
+                let address = "";
+                if (eventName === "WithdrawPrincipal") {
+                  withdrawType = WITHDRAW_TYPE.PRINCIPAL;
+                  address = event.args._to;
+                } else if (eventName === "WithdrawCoupon") {
+                  withdrawType = WITHDRAW_TYPE.COUPON;
+                  address = event.args._to;
+                } else if (eventName === "WithdrawOption") {
+                  withdrawType = WITHDRAW_TYPE.OPTION;
+                  address = event.args._to;
+                } else {
+                  address = event.args._from;
                 }
-              });
-            }
+                this.historyRepository
+                  .createHistory(
+                    chainId,
+                    address,
+                    event.args._amount,
+                    event.transactionHash,
+                    product.id,
+                    eventName === "Deposit" ? HISTORY_TYPE.DEPOSIT : HISTORY_TYPE.WITHDRAW,
+                    withdrawType,
+                    event.args._currentTokenId,
+                    event.args._supply,
+                  )
+                  .then(() => console.log("History saved"));
 
-            if (eventName === "Mature") {
-              this.marketplaceRepository
-                .find({
-                  where: {
-                    product_address: product.address,
-                  },
-                })
-                .then((marketplaceEntities) => {
-                  for (const marketplaceEntity of marketplaceEntities) {
-                    marketplaceEntity.isExpired = true;
-                    this.marketplaceRepository.save(marketplaceEntity).then(() => console.log("Marketplace entity updated"));
+                this.userRepository.saveProductId(address, product.id).then(() => console.log("Product ID saved to user entity"));
+
+                this.contractService.getProductPrincipalBalance(chainId, address, product.address).then((_principal) => {
+                  if (_principal) {
+                    this.userRepository.removeProductId(address, product.id).then(() => console.log("Product ID removed from user entity"));
                   }
                 });
-            }
-          },
-        );
+              }
+
+              if (eventName === "Mature") {
+                this.marketplaceRepository
+                  .find({
+                    where: {
+                      chainId: chainId,
+                      product_address: product.address,
+                    },
+                  })
+                  .then((marketplaceEntities) => {
+                    for (const marketplaceEntity of marketplaceEntities) {
+                      marketplaceEntity.isExpired = true;
+                      this.marketplaceRepository.save(marketplaceEntity).then(() => console.log("Marketplace entity updated"));
+                    }
+                  });
+              }
+            },
+          );
+        });
       });
-    });
 
-    this.contractService.subscribeToMarketplaceEvents(["ItemListed", "ItemSold", "ItemCanceled", "ItemUpdated"], async (eventName, event) => {
-      if (eventName === "ItemListed") {
-        this.marketplaceRepository
-          .syncItemListedEntity(
-            event.args.owner,
-            event.args.nft,
-            event.args.product,
-            event.args.tokenId,
-            event.args.quantity,
-            event.args.payToken,
-            event.args.pricePerItem,
-            event.args.startingTime,
-            event.args.listingId,
-            event.transactionHash,
-          )
-          .then((r) => console.log(r));
-      } else if (eventName === "ItemSold") {
-        let listingId = event.args.listingId;
-        let buyer = event.args.buyer;
-        const marketplace = await this.marketplaceRepository
-          .createQueryBuilder("marketplace")
-          .where("marketplace.listing_id = :listingId", { listingId: listingId.toString() })
-          .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
-          .getOne();
-        if (!marketplace) return null;
+      this.contractService.subscribeToMarketplaceEvents(
+        chainId,
+        ["ItemListed", "ItemSold", "ItemCanceled", "ItemUpdated"],
+        async (eventName, event) => {
+          if (eventName === "ItemListed") {
+            this.marketplaceRepository
+              .syncItemListedEntity(
+                chainId,
+                event.args.owner,
+                event.args.nft,
+                event.args.product,
+                event.args.tokenId,
+                event.args.quantity,
+                event.args.payToken,
+                event.args.pricePerItem,
+                event.args.startingTime,
+                event.args.listingId,
+                event.transactionHash,
+              )
+              .then((r) => console.log(r));
+          } else if (eventName === "ItemSold") {
+            const listingId = event.args.listingId;
+            const buyer = event.args.buyer;
+            const marketplace = await this.marketplaceRepository
+              .createQueryBuilder("marketplace")
+              .where("marketplace.listing_id = :listingId", { listingId: listingId.toString() })
+              .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
+              .getOne();
+            if (!marketplace) return null;
 
-        this.marketplaceRepository
-          .syncItemSoldEntity(
-            event.args.seller,
-            event.args.buyer,
-            event.args.unitPrice,
-            event.args.listingId,
-            event.transactionHash,
-          )
-          .then(() => {
-            this.userRepository
-              .saveProductId(
-                buyer, marketplace.product.id
-              ).then(() => console.log("Item sold & Product saved to buyer's position"));
-          });
-      } else if (eventName === "ItemCanceled") {
-        this.marketplaceRepository
-          .syncItemCanceledEntity(
-              event.args.owner,
-              event.args.listingId,
-              event.transactionHash
-          )
-          .then((r) => console.log(r));
-      } else if (eventName === "ItemUpdated") {
-        this.marketplaceRepository
-          .syncItemUpdatedEntity(
-            event.args.owner,
-            event.args.payToken,
-            event.args.newPrice,
-            event.args.listingId,
-            event.transactionHash,
-          )
-          .then((r) => console.log(r));
-      }
-    });
+            this.marketplaceRepository
+              .syncItemSoldEntity(
+                chainId,
+                event.args.seller,
+                event.args.buyer,
+                event.args.unitPrice,
+                event.args.listingId,
+                event.transactionHash,
+              )
+              .then(() => {
+                this.userRepository
+                  .saveProductId(buyer, marketplace.product.id)
+                  .then(() => console.log("Item sold & Product saved to buyer's position"));
+              });
+          } else if (eventName === "ItemCanceled") {
+            this.marketplaceRepository
+              .syncItemCanceledEntity(chainId, event.args.owner, event.args.listingId, event.transactionHash)
+              .then((r) => console.log(r));
+          } else if (eventName === "ItemUpdated") {
+            this.marketplaceRepository
+              .syncItemUpdatedEntity(
+                chainId,
+                event.args.owner,
+                event.args.payToken,
+                event.args.newPrice,
+                event.args.listingId,
+                event.transactionHash,
+              )
+              .then((r) => console.log(r));
+          }
+        },
+      );
+    }
   }
 }

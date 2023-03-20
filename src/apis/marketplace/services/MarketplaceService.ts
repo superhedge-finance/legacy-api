@@ -1,20 +1,21 @@
 import { Inject, Injectable } from "@tsed/di";
 import { MarketplaceRepository, Product } from "../../../dal";
-import { MarketplaceItemDto } from "../MarketplaceItemDto";
+import { MarketplaceItemDto } from "../dto/MarketplaceItemDto";
 import { ethers } from "ethers";
-import { MarketplaceItemFullDto } from "../MarketplaceItemFullDto";
-import { MarketplaceItemDetailDto } from "../MarketplaceItemDetailDto";
+import { MarketplaceItemFullDto } from "../dto/MarketplaceItemFullDto";
+import { MarketplaceItemDetailDto } from "../dto/MarketplaceItemDetailDto";
 
 @Injectable()
 export class MarketplaceService {
   @Inject(MarketplaceRepository)
   private readonly marketplaceRepository: MarketplaceRepository;
 
-  async getListedItems(): Promise<MarketplaceItemDto[]> {
+  async getListedItems(chainId: number): Promise<MarketplaceItemDto[]> {
     const listedItems = await this.marketplaceRepository
       .createQueryBuilder("marketplace")
       .where("marketplace.isExpired = false")
       .andWhere("marketplace.isSold = false")
+      .andWhere("marketplace.chainId = :chainId", { chainId })
       .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
       .getMany();
 
@@ -36,12 +37,13 @@ export class MarketplaceService {
     });
   }
 
-  async getUserListedItems(address: string): Promise<MarketplaceItemDto[]> {
+  async getUserListedItems(address: string, chainId: number): Promise<MarketplaceItemDto[]> {
     const listedItems = await this.marketplaceRepository
       .createQueryBuilder("marketplace")
       .where("marketplace.seller = :address", { address })
       .andWhere("marketplace.isExpired = false")
       .andWhere("marketplace.isSold = false")
+      .andWhere("marketplace.chainId = :chainId", { chainId })
       .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
       .getMany();
 
@@ -63,10 +65,11 @@ export class MarketplaceService {
     });
   }
 
-  async getItem(listing_id: number): Promise<MarketplaceItemFullDto | null> {
+  async getItem(listing_id: number, chainId: number): Promise<MarketplaceItemFullDto | null> {
     const item = await this.marketplaceRepository
       .createQueryBuilder("marketplace")
       .where("marketplace.listing_id = :listing_id", { listing_id })
+      .andWhere("marketplace.chainId = :chainId", { chainId })
       .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
       .getOne();
 
@@ -90,10 +93,11 @@ export class MarketplaceService {
     };
   }
 
-  async getTokenItem(listing_id: string): Promise<MarketplaceItemDetailDto | null> {
+  async getTokenItem(listing_id: string, chainId: number): Promise<MarketplaceItemDetailDto | null> {
     const item = await this.marketplaceRepository
       .createQueryBuilder("marketplace")
       .where("marketplace.listing_id = :listing_id", { listing_id })
+      .andWhere("marketplace.chainId = :chainId", { chainId })
       .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
       .getOne();
 
