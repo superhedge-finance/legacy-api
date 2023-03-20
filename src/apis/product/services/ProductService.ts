@@ -7,6 +7,7 @@ import { CycleDto } from "../dto/CycleDto";
 import { StatsDto } from "../dto/StatsDto";
 import { HistoryRepository } from "../../../dal/repository/HistoryRepository";
 import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../../shared/enum";
+import { DECIMAL } from "../../../shared/constants";
 
 @Injectable()
 export class ProductService {
@@ -107,6 +108,7 @@ export class ProductService {
   }
 
   async syncHistories(
+    chainId: number,
     productId: number,
     type: HISTORY_TYPE,
     pastEvents: any[],
@@ -126,7 +128,7 @@ export class ProductService {
       entity.withdrawType = withdrawType;
       entity.productId = productId;
       entity.amount = event.args._amount.toString();
-      entity.amountInDecimal = Number(ethers.utils.formatUnits(event.args._amount, 6));
+      entity.amountInDecimal = Number(ethers.utils.formatUnits(event.args._amount, DECIMAL[chainId]));
       entity.transactionHash = event.transactionHash;
       await this.historyRepository.save(entity);
     }

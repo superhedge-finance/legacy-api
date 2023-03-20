@@ -2,6 +2,7 @@ import { BigNumber, ethers } from "ethers";
 import { Repository } from "typeorm";
 import { History } from "../entity";
 import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../shared/enum";
+import { DECIMAL } from "../../shared/constants";
 
 export class HistoryRepository extends Repository<History> {
   createHistory = async (
@@ -24,7 +25,7 @@ export class HistoryRepository extends Repository<History> {
       entity.withdrawType = withdrawType;
       entity.productId = productId;
       entity.amount = amount.toString();
-      entity.amountInDecimal = Number(ethers.utils.formatUnits(amount, 6));
+      entity.amountInDecimal = Number(ethers.utils.formatUnits(amount, DECIMAL[chainId]));
       entity.transactionHash = transactionHash;
       if (tokenId) {
         entity.tokenId = tokenId.toString();

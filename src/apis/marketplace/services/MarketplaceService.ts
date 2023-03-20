@@ -4,6 +4,7 @@ import { MarketplaceItemDto } from "../dto/MarketplaceItemDto";
 import { ethers } from "ethers";
 import { MarketplaceItemFullDto } from "../dto/MarketplaceItemFullDto";
 import { MarketplaceItemDetailDto } from "../dto/MarketplaceItemDetailDto";
+import { DECIMAL } from "../../../shared/constants";
 
 @Injectable()
 export class MarketplaceService {
@@ -20,7 +21,7 @@ export class MarketplaceService {
       .getMany();
 
     return listedItems.map((item) => {
-      const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, 6);
+      const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, DECIMAL[chainId]);
       return {
         id: item.id,
         tokenId: item.tokenId,
@@ -48,7 +49,7 @@ export class MarketplaceService {
       .getMany();
 
     return listedItems.map((item) => {
-      const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, 6);
+      const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, DECIMAL[chainId]);
       return {
         id: item.id,
         tokenId: item.tokenId,
@@ -75,7 +76,7 @@ export class MarketplaceService {
 
     if (!item) return null;
 
-    const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, 6);
+    const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, DECIMAL[chainId]);
     return {
       id: item.id,
       tokenId: item.tokenId,
@@ -110,7 +111,7 @@ export class MarketplaceService {
       },
     });
 
-    const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, 6);
+    const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, DECIMAL[chainId]);
     return {
       id: item.id,
       tokenId: item.tokenId,

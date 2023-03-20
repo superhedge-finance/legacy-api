@@ -21,3 +21,8 @@ export const RPC_PROVIDERS = {
   [SUPPORT_CHAIN_IDS.GOERLI]: "https://goerli.blockpi.network/v1/rpc/public",
   [SUPPORT_CHAIN_IDS.MOONBEAM_ALPHA]: "https://rpc.api.moonbase.moonbeam.network",
 };
+
+export const DECIMAL: { [chainId: number]: number } = {
+  [SUPPORT_CHAIN_IDS.GOERLI]: 6,
+  [SUPPORT_CHAIN_IDS.MOONBEAM_ALPHA]: 18
+};

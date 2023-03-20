@@ -1,6 +1,7 @@
 import { Repository } from "typeorm";
 import { BigNumber, ethers } from "ethers";
 import { Marketplace } from "../entity";
+import { DECIMAL } from "../../shared/constants";
 
 export class MarketplaceRepository extends Repository<Marketplace> {
   async syncItemListedEntity(
@@ -31,7 +32,7 @@ export class MarketplaceRepository extends Repository<Marketplace> {
       marketplace.quantityInDecimal = quantity.toNumber();
       marketplace.payToken = payToken;
       marketplace.price = price.toString();
-      marketplace.priceInDecimal = Number(ethers.utils.formatUnits(price, 6));
+      marketplace.priceInDecimal = Number(ethers.utils.formatUnits(price, DECIMAL[chainId]));
       marketplace.startingTime = startingTime.toNumber();
       marketplace.listingId = listingId.toString();
       marketplace.transactionHash = transactionHash;
@@ -93,7 +94,7 @@ export class MarketplaceRepository extends Repository<Marketplace> {
     });
     if (item) {
       item.price = newPrice.toString();
-      item.priceInDecimal = Number(ethers.utils.formatUnits(newPrice, 6));
+      item.priceInDecimal = Number(ethers.utils.formatUnits(newPrice, DECIMAL[chainId]));
       item.payToken = payToken;
       return this.save(item);
     }

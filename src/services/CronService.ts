@@ -44,7 +44,7 @@ export class CronService {
             lastBlockNumber - 50,
             lastBlockNumber,
           );
-          await this.productService.syncHistories(product.id, HISTORY_TYPE.DEPOSIT, pastDepositEvents);
+          await this.productService.syncHistories(chainId, product.id, HISTORY_TYPE.DEPOSIT, pastDepositEvents);
 
           const withdrawEvents = await this.contractService.getProductPastEvents(
             chainId,
@@ -53,7 +53,7 @@ export class CronService {
             lastBlockNumber - 50,
             lastBlockNumber,
           );
-          await this.productService.syncHistories(product.id, HISTORY_TYPE.WITHDRAW, withdrawEvents, WITHDRAW_TYPE.PRINCIPAL);
+          await this.productService.syncHistories(chainId, product.id, HISTORY_TYPE.WITHDRAW, withdrawEvents, WITHDRAW_TYPE.PRINCIPAL);
 
           const withdrawCouponEvents = await this.contractService.getProductPastEvents(
             chainId,
@@ -62,7 +62,7 @@ export class CronService {
             lastBlockNumber - 50,
             lastBlockNumber,
           );
-          await this.productService.syncHistories(product.id, HISTORY_TYPE.WITHDRAW, withdrawCouponEvents, WITHDRAW_TYPE.COUPON);
+          await this.productService.syncHistories(chainId, product.id, HISTORY_TYPE.WITHDRAW, withdrawCouponEvents, WITHDRAW_TYPE.COUPON);
 
           const withdrawOptionEvents = await this.contractService.getProductPastEvents(
             chainId,
@@ -71,7 +71,7 @@ export class CronService {
             lastBlockNumber - 50,
             lastBlockNumber,
           );
-          await this.productService.syncHistories(product.id, HISTORY_TYPE.WITHDRAW, withdrawOptionEvents, WITHDRAW_TYPE.OPTION);
+          await this.productService.syncHistories(chainId, product.id, HISTORY_TYPE.WITHDRAW, withdrawOptionEvents, WITHDRAW_TYPE.OPTION);
 
           const matureEvents = await this.contractService.getProductPastEvents(
             chainId,
