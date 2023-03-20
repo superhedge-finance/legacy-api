@@ -1,10 +1,11 @@
 import { BigNumber, ethers } from "ethers";
 import { Repository } from "typeorm";
 import { History } from "../entity";
-import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../services/dto/enum";
+import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../shared/enum";
 
 export class HistoryRepository extends Repository<History> {
   createHistory = async (
+    chainId: number,
     address: string,
     amount: BigNumber,
     transactionHash: string,
@@ -18,6 +19,7 @@ export class HistoryRepository extends Repository<History> {
     if (!exist) {
       const entity = new History();
       entity.address = address;
+      entity.chainId = chainId;
       entity.type = type;
       entity.withdrawType = withdrawType;
       entity.productId = productId;

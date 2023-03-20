@@ -4,6 +4,7 @@ import { User } from "./User";
 import { History } from "./History";
 import { Property } from "@tsed/schema";
 import { Marketplace } from "./Marketplace";
+import { SUPPORT_CHAIN_IDS } from "../../shared/enum";
 
 @Entity("products")
 export class Product {
@@ -41,6 +42,10 @@ export class Product {
   @Column("json")
   @Property()
   issuanceCycle: CycleDto;
+
+  @Column({ type: "enum", enum: SUPPORT_CHAIN_IDS, default: SUPPORT_CHAIN_IDS.GOERLI })
+  @Property()
+  chainId: number;
 
   @ManyToOne(() => User, (user) => user.products)
   user: User;

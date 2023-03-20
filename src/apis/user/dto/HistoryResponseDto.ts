@@ -1,5 +1,5 @@
 import { Property } from "@tsed/schema";
-import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../../services/dto/enum";
+import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../../shared/enum";
 
 export class HistoryResponseDto {
   @Property()

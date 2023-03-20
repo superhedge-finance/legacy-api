@@ -28,7 +28,7 @@ export class UserService {
     return this.userRepository.findOne({ where: { address } });
   }
 
-  async getPositions(address: string): Promise<Array<Product>> {
+  async getPositions(chainId: number, address: string): Promise<Array<Product>> {
     const user = await this.userRepository.findOne({ where: { address } });
     if (!user) {
       await this.create({ address, username: "", email: "", subscribed: false });
@@ -37,15 +37,17 @@ export class UserService {
     return this.productRepository.find({
       where: {
         id: In(user.productIds),
+        chainId: chainId,
       },
     });
   }
 
-  async getHistories(address: string, sort: number): Promise<Array<HistoryResponseDto>> {
+  async getHistories(chainId: number, address: string, sort: number): Promise<Array<HistoryResponseDto>> {
     const histories = await this.historyRepository
       .createQueryBuilder("history")
       .leftJoinAndMapOne("history.product", Product, "product", "product.id = history.product_id")
       .where("history.address = :address", { address })
+      .andWhere("history.chain_id = :chainId", { chainId })
       .orderBy("history.created_at", sort === 1 ? "ASC" : "DESC")
       .getMany();
     return histories.map((history) => {

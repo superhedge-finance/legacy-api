@@ -26,13 +26,17 @@ export class UserController {
 
   @Get("/positions/:address")
   @Returns(200, Array).Of(Product)
-  async getPositions(@PathParams("address") address: string): Promise<Array<Product>> {
-    return this.userService.getPositions(address);
+  async getPositions(@PathParams("address") address: string, @QueryParams("chainId") chainId: number): Promise<Array<Product>> {
+    return this.userService.getPositions(chainId, address);
   }
 
   @Get("/history/:address")
   @Returns(200, Array).Of(HistoryResponseDto)
-  async getHistories(@PathParams("address") address: string, @QueryParams("sort") sort: number): Promise<Array<HistoryResponseDto>> {
-    return this.userService.getHistories(address, sort);
+  async getHistories(
+    @PathParams("address") address: string,
+    @QueryParams("sort") sort: number,
+    @QueryParams("chainId") chainId: number,
+  ): Promise<Array<HistoryResponseDto>> {
+    return this.userService.getHistories(chainId, address, sort);
   }
 }

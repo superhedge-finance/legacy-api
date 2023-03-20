@@ -4,6 +4,7 @@ import { Marketplace } from "../entity";
 
 export class MarketplaceRepository extends Repository<Marketplace> {
   async syncItemListedEntity(
+    chainId: number,
     owner: string,
     nft: string,
     product: string,
@@ -20,6 +21,7 @@ export class MarketplaceRepository extends Repository<Marketplace> {
     });
     if (!exist) {
       const marketplace = new Marketplace();
+      marketplace.chainId = chainId;
       marketplace.seller = owner;
       marketplace.nft = nft;
       marketplace.product_address = product;
@@ -39,6 +41,7 @@ export class MarketplaceRepository extends Repository<Marketplace> {
   }
 
   async syncItemSoldEntity(
+    chainId: number,
     seller: string,
     buyer: string,
     unitPrice: BigNumber,
@@ -47,9 +50,10 @@ export class MarketplaceRepository extends Repository<Marketplace> {
   ) {
     const item = await this.findOne({
       where: {
-        listingId: listingId.toString()
-      }
-    })
+        chainId,
+        listingId: listingId.toString(),
+      },
+    });
     if (item) {
       item.unitPrice = unitPrice.toString();
       item.buyer = buyer;
@@ -59,20 +63,22 @@ export class MarketplaceRepository extends Repository<Marketplace> {
     }
   }
 
-  async syncItemCanceledEntity(owner: string, listingId: BigNumber, transactionHash: string) {
+  async syncItemCanceledEntity(chainId: number, owner: string, listingId: BigNumber, transactionHash: string) {
     const item = await this.findOne({
       where: {
+        chainId,
         listingId: listingId.toString(),
-      }
-    })
+      },
+    });
     if (item) {
       item.isExpired = true;
       item.cancelTransactionHash = transactionHash;
-      return this.save(item)
+      return this.save(item);
     }
   }
 
   async syncItemUpdatedEntity(
+    chainId: number,
     owner: string,
     payToken: string,
     newPrice: BigNumber,
@@ -81,14 +87,15 @@ export class MarketplaceRepository extends Repository<Marketplace> {
   ) {
     const item = await this.findOne({
       where: {
-        listingId: listingId.toString()
-      }
-    })
+        chainId,
+        listingId: listingId.toString(),
+      },
+    });
     if (item) {
-      item.price = newPrice.toString()
+      item.price = newPrice.toString();
       item.priceInDecimal = Number(ethers.utils.formatUnits(newPrice, 6));
       item.payToken = payToken;
-      return this.save(item)
+      return this.save(item);
     }
   }
 }

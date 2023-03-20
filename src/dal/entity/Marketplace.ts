@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne } from "typeorm";
 import { Property } from "@tsed/schema";
 import { Product } from "./Product";
+import { SUPPORT_CHAIN_IDS } from "../../shared/enum";
 
 @Entity("marketplaces")
 export class Marketplace {
@@ -82,6 +83,10 @@ export class Marketplace {
   @Column({ default: false })
   @Property()
   isSold: boolean;
+
+  @Column({ type: "enum", enum: SUPPORT_CHAIN_IDS, default: SUPPORT_CHAIN_IDS.GOERLI })
+  @Property()
+  chainId: number;
 
   @OneToOne(() => Product, (product) => product.address)
   product: Product;

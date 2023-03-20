@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne } from "typeorm";
 import { Property } from "@tsed/schema";
 import { Product } from "./Product";
-import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../services/dto/enum";
+import { HISTORY_TYPE, SUPPORT_CHAIN_IDS, WITHDRAW_TYPE } from "../../shared/enum";
 
 @Entity("histories")
 export class History {
@@ -55,6 +55,10 @@ export class History {
   @Column({ nullable: true })
   @Property()
   supplyInDecimal: number;
+
+  @Column({ type: "enum", enum: SUPPORT_CHAIN_IDS, default: SUPPORT_CHAIN_IDS.GOERLI })
+  @Property()
+  chainId: number;
 
   @OneToOne(() => Product, (product) => product.history)
   product: Product;
