@@ -1,7 +1,6 @@
 <div align="center">
   <h1>Superhedge Api</h1>
   <br />
-  <hr />
 </div>
 
 > An awesome project based on Ts.ED framework
@@ -11,6 +10,7 @@
 > **Important!** Ts.ED requires Node >= 14, Express >= 4 and TypeScript >= 4.
 
 1. Clone this repository on localhost.
+
 2. Create an enviroment file named `.env` (copy .env.example) and fill the next enviroment variables
 
 ```
