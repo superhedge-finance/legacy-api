@@ -24,16 +24,16 @@ DATABASE_PORT=
 3. Install dependencies using 'yarn' package manager
 
 ```batch
-$  install
+$  yarn
 ```
 
 4. Run the api server(default port: 3000)
 ```batch
-$  start
+$  yarn start
 
 # build for production
-$  build
-$  start:prod
+$  yarn build
+$  yarn start:prod
 ```
 
 ## How to deploy and run on the hosting server
