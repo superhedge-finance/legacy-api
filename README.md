@@ -23,12 +23,12 @@ DATABASE_PORT=
 ```
 3. Install dependencies using 'yarn' package manager
 
-```batch
+```bash
 $  yarn
 ```
 
 4. Run the api server(default port: 3000)
-```batch
+```bash
 $  yarn start
 
 # build for production
@@ -53,12 +53,12 @@ DATABASE_PORT=
 
 3. Build the container image using 'docker build'.
 
-```batch
+```bash
 sudo docker build -t superhedge-api .
 ```
 
 4. Run the container in the background using 'docker run'.
 
-```batch
+```bash
 sudo docker run -d -p 3000:3000 superhedge-api
 ```
