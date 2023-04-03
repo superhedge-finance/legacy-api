@@ -3,6 +3,8 @@ import { MarketplaceItemDto } from "./MarketplaceItemDto";
 
 export type OfferType = {
   id: number;
+  tokenId: string;
+  listingId: string;
   price: number;
   startingTime: number;
   quantity: number;

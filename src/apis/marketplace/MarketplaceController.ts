@@ -33,12 +33,21 @@ export class MarketplaceController {
     return this.marketplaceService.getItem(listing_id, chainId);
   }
 
-  @Get("/token/:listing_id")
+  /*@Get("/token/:listing_id")
   @Returns(200, MarketplaceItemDetailDto)
   async getTokenItem(
     @PathParams("listing_id") listing_id: string,
     @QueryParams("chainId") chainId: number,
   ): Promise<MarketplaceItemDetailDto | null> {
     return this.marketplaceService.getTokenItem(listing_id, chainId);
+  }*/
+
+  @Get("/token/:product_address")
+  @Returns(200, MarketplaceItemDetailDto)
+  async getTokenItem(
+    @PathParams("product_address") product_address: string,
+    @QueryParams("chainId") chainId: number,
+  ): Promise<MarketplaceItemDetailDto | null> {
+    return this.marketplaceService.getTokenItem(product_address, chainId);
   }
 }

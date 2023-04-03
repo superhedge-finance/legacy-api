@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@tsed/di";
-import { MarketplaceRepository, Product } from "../../../dal";
+import { MarketplaceRepository, ProductRepository, Product } from "../../../dal";
 import { MarketplaceItemDto } from "../dto/MarketplaceItemDto";
 import { ethers } from "ethers";
 import { MarketplaceItemFullDto } from "../dto/MarketplaceItemFullDto";
@@ -11,6 +11,8 @@ export class MarketplaceService {
   @Inject(MarketplaceRepository)
   private readonly marketplaceRepository: MarketplaceRepository;
 
+  @Inject(ProductRepository)
+  private readonly productRepository: ProductRepository;
   async getListedItems(chainId: number): Promise<MarketplaceItemDto[]> {
     const listedItems = await this.marketplaceRepository
       .createQueryBuilder("marketplace")
@@ -18,27 +20,31 @@ export class MarketplaceService {
       .andWhere("marketplace.isSold = false")
       .andWhere("marketplace.chainId = :chainId", { chainId })
       .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
-      .getMany();
+      .select(["MIN(marketplace.priceInDecimal) as best_price", "product_address"])
+      .groupBy("product_address")
+      .getRawMany();
 
-    return listedItems.map((item) => {
-      const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, DECIMAL[chainId]);
+    return await Promise.all(listedItems.map(async (item) => {
+      const product = await this.productRepository.findOne({
+        where: {
+          address: item.product_address
+        }
+      });
+
+      const currentCapacity = ethers.utils.formatUnits(product!.currentCapacity, DECIMAL[chainId]);
       return {
-        id: item.id,
-        tokenId: item.tokenId,
-        listingId: item.listingId,
-        offerPrice: item.priceInDecimal,
+        offerPrice: item.best_price,
         mtmPrice: 0,
-        quantity: item.quantityInDecimal,
-        underlying: item.product.underlying,
-        productAddress: item.product.address,
-        name: item.product.name,
+        underlying: product!.underlying,
+        productAddress: product!.address,
+        name: product!.name,
         totalLots: Math.floor(Number(currentCapacity) / 1000),
-        issuanceCycle: item.product.issuanceCycle,
+        issuanceCycle: product!.issuanceCycle,
       };
-    });
+    }));
   }
 
-  async getUserListedItems(address: string, chainId: number): Promise<MarketplaceItemDto[]> {
+  async getUserListedItems(address: string, chainId: number): Promise<MarketplaceItemFullDto[]> {
     const listedItems = await this.marketplaceRepository
       .createQueryBuilder("marketplace")
       .where("marketplace.seller = :address", { address })
@@ -51,17 +57,19 @@ export class MarketplaceService {
     return listedItems.map((item) => {
       const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, DECIMAL[chainId]);
       return {
-        id: item.id,
-        tokenId: item.tokenId,
-        listingId: item.listingId,
         offerPrice: item.priceInDecimal,
         mtmPrice: 0,
-        quantity: item.quantityInDecimal,
         underlying: item.product.underlying,
         productAddress: item.product.address,
         name: item.product.name,
         totalLots: Math.floor(Number(currentCapacity) / 1000),
         issuanceCycle: item.product.issuanceCycle,
+        id: item.id,
+        tokenId: item.tokenId,
+        listingId: item.listingId,
+        quantity: item.quantityInDecimal,
+        startingTime: item.startingTime,
+        seller: item.seller,
       };
     });
   }
@@ -78,23 +86,23 @@ export class MarketplaceService {
 
     const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, DECIMAL[chainId]);
     return {
-      id: item.id,
-      tokenId: item.tokenId,
-      listingId: item.listingId,
       offerPrice: item.priceInDecimal,
       mtmPrice: 0,
-      quantity: item.quantityInDecimal,
       underlying: item.product.underlying,
       productAddress: item.product.address,
       name: item.product.name,
       totalLots: Math.floor(Number(currentCapacity) / 1000),
       issuanceCycle: item.product.issuanceCycle,
+      id: item.id,
+      tokenId: item.tokenId,
+      listingId: item.listingId,
+      quantity: item.quantityInDecimal,
       startingTime: item.startingTime,
-      seller: item.seller,
+      seller: item.seller
     };
   }
 
-  async getTokenItem(listing_id: string, chainId: number): Promise<MarketplaceItemDetailDto | null> {
+  /*async getTokenItem(listing_id: string, chainId: number): Promise<MarketplaceItemDetailDto | null> {
     const item = await this.marketplaceRepository
       .createQueryBuilder("marketplace")
       .where("marketplace.listing_id = :listing_id", { listing_id })
@@ -127,6 +135,51 @@ export class MarketplaceService {
       offers: offers.map((offer) => {
         return {
           id: offer.id,
+          price: offer.priceInDecimal,
+          quantity: offer.quantityInDecimal,
+          startingTime: offer.startingTime,
+          seller: offer.seller,
+        };
+      }),
+    };
+  }*/
+
+  async getTokenItem(product_address: string, chainId: number): Promise<MarketplaceItemDetailDto | null> {
+    const item = await this.marketplaceRepository
+      .createQueryBuilder("marketplace")
+      .where("marketplace.product_address = :product_address", { product_address })
+      .andWhere("marketplace.chainId = :chainId", { chainId })
+      .andWhere("marketplace.isExpired = false")
+      .andWhere("marketplace.isSold = false")
+      .leftJoinAndMapOne("marketplace.product", Product, "product", "marketplace.product_address = product.address")
+      .orderBy("marketplace.priceInDecimal")
+      .getOne();
+
+    if (!item) return null;
+
+    const offers = await this.marketplaceRepository.find({
+      where: {
+        product_address: item.product_address,
+        chainId: chainId,
+        isExpired: false,
+        isSold: false
+      },
+    });
+
+    const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, DECIMAL[chainId]);
+    return {
+      offerPrice: item.priceInDecimal,
+      mtmPrice: 0,
+      underlying: item.product.underlying,
+      productAddress: item.product.address,
+      name: item.product.name,
+      totalLots: Math.floor(Number(currentCapacity) / 1000),
+      issuanceCycle: item.product.issuanceCycle,
+      offers: offers.map((offer) => {
+        return {
+          id: offer.id,
+          tokenId: offer.tokenId,
+          listingId: offer.listingId,
           price: offer.priceInDecimal,
           quantity: offer.quantityInDecimal,
           startingTime: offer.startingTime,

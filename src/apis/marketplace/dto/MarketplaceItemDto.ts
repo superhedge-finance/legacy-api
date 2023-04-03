@@ -3,22 +3,10 @@ import { CycleDto } from "../../product/dto/CycleDto";
 
 export class MarketplaceItemDto {
   @Property()
-  id: number;
-
-  @Property()
-  tokenId: string;
-
-  @Property()
-  listingId: string;
-
-  @Property()
   offerPrice: number;
 
   @Property()
   mtmPrice: number;
-
-  @Property()
-  quantity: number;
 
   @Property()
   underlying: string;
