@@ -47,6 +47,22 @@ export class Product {
   @Property()
   chainId: number;
 
+  @Column({ nullable: true })
+  @Property()
+  vaultStrategy: string;
+
+  @Column({ nullable: true })
+  @Property()
+  risk: string;
+
+  @Column({ nullable: true })
+  @Property()
+  fees: string;
+
+  @Column({ nullable: true })
+  @Property()
+  counterparties: string;
+
   @ManyToOne(() => User, (user) => user.products)
   user: User;
 
