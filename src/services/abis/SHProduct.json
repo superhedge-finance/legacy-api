@@ -46,40 +46,9 @@
         "type": "uint256"
       },
       {
-        "indexed": false,
-        "internalType": "address[]",
-        "name": "_clearpools",
-        "type": "address[]"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256[]",
-        "name": "_yieldRates",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "DistributeWithClear",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
         "internalType": "address",
-        "name": "_qredoDeribit",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_optionRate",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_cErc20Pool",
+        "name": "_mErc20Pool",
         "type": "address"
       },
       {
@@ -89,7 +58,7 @@
         "type": "uint256"
       }
     ],
-    "name": "DistributeWithComp",
+    "name": "DistributeWithMoon",
     "type": "event"
   },
   {
@@ -242,25 +211,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "address[]",
-        "name": "_clearpools",
-        "type": "address[]"
-      }
-    ],
-    "name": "RedeemYieldFromClear",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "address",
-        "name": "_cErc20Pool",
+        "name": "_mErc20Pool",
         "type": "address"
       }
     ],
-    "name": "RedeemYieldFromComp",
+    "name": "RedeemYieldFromMoon",
     "type": "event"
   },
   {
@@ -300,6 +256,19 @@
       }
     ],
     "name": "UpdateCoupon",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      }
+    ],
+    "name": "UpdateName",
     "type": "event"
   },
   {
@@ -435,6 +404,12 @@
   {
     "anonymous": false,
     "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_currentTokenId",
+        "type": "uint256"
+      },
       {
         "indexed": false,
         "internalType": "string",
@@ -610,19 +585,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "dedicatedMsgSender",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -643,35 +605,17 @@
   {
     "inputs": [
       {
-        "internalType": "uint256[]",
-        "name": "_yieldRates",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "address[]",
-        "name": "_clearpools",
-        "type": "address[]"
-      }
-    ],
-    "name": "distributeWithClear",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "uint256",
         "name": "_yieldRate",
         "type": "uint256"
       },
       {
         "internalType": "address",
-        "name": "_cErc20Pool",
+        "name": "_mErc20Pool",
         "type": "address"
       }
     ],
-    "name": "distributeWithComp",
+    "name": "distributeWithMoon",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1037,12 +981,12 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "_clearpools",
-        "type": "address[]"
+        "internalType": "address",
+        "name": "_mErc20Pool",
+        "type": "address"
       }
     ],
-    "name": "redeemYieldFromClear",
+    "name": "redeemYieldFromMoon",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1051,24 +995,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_cErc20Pool",
+        "name": "_account",
         "type": "address"
       }
     ],
-    "name": "redeemYieldFromComp",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_sender",
-        "type": "address"
-      }
-    ],
-    "name": "setDedicatedMsgSender",
+    "name": "removeFromWhitelist",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1091,7 +1022,7 @@
     "name": "status",
     "outputs": [
       {
-        "internalType": "enum SHProduct.Status",
+        "internalType": "enum DataTypes.Status",
         "name": "",
         "type": "uint8"
       }
@@ -1154,6 +1085,19 @@
       }
     ],
     "name": "updateCoupon",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      }
+    ],
+    "name": "updateName",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
