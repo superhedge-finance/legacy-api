@@ -33,4 +33,7 @@ export class CycleDto {
 
   @Property()
   url: string;
+
+  @Property()
+  image_uri: string;
 }
