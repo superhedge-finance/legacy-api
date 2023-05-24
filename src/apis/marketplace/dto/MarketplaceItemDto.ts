@@ -22,4 +22,16 @@ export class MarketplaceItemDto {
 
   @Property()
   issuanceCycle: CycleDto;
+
+  @Property()
+  vaultStrategy: string;
+
+  @Property()
+  risk: string;
+
+  @Property()
+  fees: string;
+
+  @Property()
+  counterparties: string;
 }

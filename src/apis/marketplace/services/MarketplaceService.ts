@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Inject, Injectable } from "@tsed/di";
 import { MarketplaceRepository, ProductRepository, Product } from "../../../dal";
 import { MarketplaceItemDto } from "../dto/MarketplaceItemDto";
@@ -40,6 +41,10 @@ export class MarketplaceService {
         name: product!.name,
         totalLots: Math.floor(Number(currentCapacity) / 1000),
         issuanceCycle: product!.issuanceCycle,
+        vaultStrategy: product!.vaultStrategy,
+        risk: product!.risk,
+        fees: product!.fees,
+        counterparties: product!.counterparties
       };
     }));
   }
@@ -64,6 +69,10 @@ export class MarketplaceService {
         name: item.product.name,
         totalLots: Math.floor(Number(currentCapacity) / 1000),
         issuanceCycle: item.product.issuanceCycle,
+        vaultStrategy: item.product.vaultStrategy,
+        risk: item.product.risk,
+        fees: item.product.fees,
+        counterparties: item.product.counterparties,
         id: item.id,
         tokenId: item.tokenId,
         listingId: item.listingId,
@@ -93,6 +102,10 @@ export class MarketplaceService {
       name: item.product.name,
       totalLots: Math.floor(Number(currentCapacity) / 1000),
       issuanceCycle: item.product.issuanceCycle,
+      vaultStrategy: item.product.vaultStrategy,
+      risk: item.product.risk,
+      fees: item.product.fees,
+      counterparties: item.product.counterparties,
       id: item.id,
       tokenId: item.tokenId,
       listingId: item.listingId,
@@ -175,6 +188,10 @@ export class MarketplaceService {
       name: item.product.name,
       totalLots: Math.floor(Number(currentCapacity) / 1000),
       issuanceCycle: item.product.issuanceCycle,
+      vaultStrategy: item.product.vaultStrategy,
+      risk: item.product.risk,
+      fees: item.product.fees,
+      counterparties: item.product.counterparties,
       offers: offers.map((offer) => {
         return {
           id: offer.id,
