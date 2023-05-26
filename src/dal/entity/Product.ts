@@ -63,6 +63,10 @@ export class Product {
   @Property()
   counterparties: string;
 
+  @Column({ nullable: true })
+  @Property()
+  mtmPrice: number;
+
   @ManyToOne(() => User, (user) => user.products)
   user: User;
 
