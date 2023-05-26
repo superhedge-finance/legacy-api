@@ -35,7 +35,7 @@ export class MarketplaceService {
       const currentCapacity = ethers.utils.formatUnits(product!.currentCapacity, DECIMAL[chainId]);
       return {
         offerPrice: item.best_price,
-        mtmPrice: 0,
+        mtmPrice: product!.mtmPrice,
         underlying: product!.underlying,
         productAddress: product!.address,
         name: product!.name,
@@ -63,7 +63,7 @@ export class MarketplaceService {
       const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, DECIMAL[chainId]);
       return {
         offerPrice: item.priceInDecimal,
-        mtmPrice: 0,
+        mtmPrice: item.product.mtmPrice,
         underlying: item.product.underlying,
         productAddress: item.product.address,
         name: item.product.name,
@@ -96,7 +96,7 @@ export class MarketplaceService {
     const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, DECIMAL[chainId]);
     return {
       offerPrice: item.priceInDecimal,
-      mtmPrice: 0,
+      mtmPrice: item.product.mtmPrice,
       underlying: item.product.underlying,
       productAddress: item.product.address,
       name: item.product.name,
@@ -138,7 +138,7 @@ export class MarketplaceService {
       tokenId: item.tokenId,
       listingId: item.listingId,
       offerPrice: item.priceInDecimal,
-      mtmPrice: 0,
+      mtmPrice: item.product.mtmPrice,,
       quantity: item.quantityInDecimal,
       underlying: item.product.underlying,
       productAddress: item.product.address,
@@ -182,7 +182,7 @@ export class MarketplaceService {
     const currentCapacity = ethers.utils.formatUnits(item.product.currentCapacity, DECIMAL[chainId]);
     return {
       offerPrice: item.priceInDecimal,
-      mtmPrice: 0,
+      mtmPrice: item.product.mtmPrice,
       underlying: item.product.underlying,
       productAddress: item.product.address,
       name: item.product.name,
