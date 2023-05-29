@@ -6,6 +6,12 @@ export class MarketplaceItemDto {
   offerPrice: number;
 
   @Property()
+  offerLots: number;
+
+  @Property()
+  totalLots: number;
+
+  @Property()
   mtmPrice: number;
 
   @Property()
@@ -16,9 +22,6 @@ export class MarketplaceItemDto {
 
   @Property()
   name: string;
-
-  @Property()
-  totalLots: number;
 
   @Property()
   issuanceCycle: CycleDto;
