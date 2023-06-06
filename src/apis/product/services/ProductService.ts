@@ -116,14 +116,12 @@ export class ProductService {
   ): Promise<void> {
     for (const event of pastEvents) {
       const entity = new History();
-      if (type === HISTORY_TYPE.DEPOSIT) {
-        entity.address = event.args._from;
-        entity.tokenId = event.args._currentTokenId.toString();
+      if (type === HISTORY_TYPE.DEPOSIT || type === HISTORY_TYPE.WEEKLY_COUPON) {
+        entity.tokenId = event.args._tokenId.toString();
         entity.supply = event.args._supply.toString();
         entity.supplyInDecimal = event.args._supply.toNumber();
-      } else {
-        entity.address = event.args._to;
       }
+      entity.address = event.args._user;
       entity.type = type;
       entity.withdrawType = withdrawType;
       entity.productId = productId;

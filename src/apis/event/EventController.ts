@@ -45,6 +45,7 @@ export class EventsController {
               "FundAccept",
               "FundLock",
               "Issuance",
+              "WeeklyCoupon",
               "Mature",
               "Unpaused",
               "Paused",
@@ -58,21 +59,27 @@ export class EventsController {
                 });
               }
 
-              if (["Deposit", "WithdrawPrincipal", "WithdrawCoupon", "WithdrawOption"].includes(eventName)) {
+              if (["Deposit", "WithdrawPrincipal", "WithdrawCoupon", "WithdrawOption", "WeeklyCoupon"].includes(eventName)) {
                 let withdrawType: WITHDRAW_TYPE = WITHDRAW_TYPE.NONE;
-                let address = "";
+                let type: HISTORY_TYPE;
+
                 if (eventName === "WithdrawPrincipal") {
                   withdrawType = WITHDRAW_TYPE.PRINCIPAL;
-                  address = event.args._to;
+                  type = HISTORY_TYPE.WITHDRAW;
                 } else if (eventName === "WithdrawCoupon") {
                   withdrawType = WITHDRAW_TYPE.COUPON;
-                  address = event.args._to;
+                  type = HISTORY_TYPE.WITHDRAW;
                 } else if (eventName === "WithdrawOption") {
                   withdrawType = WITHDRAW_TYPE.OPTION;
-                  address = event.args._to;
+                  type = HISTORY_TYPE.WITHDRAW;
+                } else if (eventName === "Deposit") {
+                  type = HISTORY_TYPE.DEPOSIT;
                 } else {
-                  address = event.args._from;
+                  type = HISTORY_TYPE.WEEKLY_COUPON;
                 }
+
+                const address = event.args._user;
+
                 this.historyRepository
                   .createHistory(
                     chainId,
@@ -80,9 +87,9 @@ export class EventsController {
                     event.args._amount,
                     event.transactionHash,
                     product.id,
-                    eventName === "Deposit" ? HISTORY_TYPE.DEPOSIT : HISTORY_TYPE.WITHDRAW,
+                    type,
                     withdrawType,
-                    event.args._currentTokenId,
+                    event.args._tokenId,
                     event.args._supply,
                   )
                   .then(() => console.log("History saved"));

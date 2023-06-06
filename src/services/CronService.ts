@@ -72,6 +72,15 @@ export class CronService {
             lastBlockNumber,
           );
           await this.productService.syncHistories(chainId, product.id, HISTORY_TYPE.WITHDRAW, withdrawOptionEvents, WITHDRAW_TYPE.OPTION);
+          
+          const weeklyCouponEvents = await this.contractService.getProductPastEvents(
+            chainId,
+            product.address,
+            "WeeklyCoupon",
+            lastBlockNumber - 50,
+            lastBlockNumber,
+          );
+          await this.productService.syncHistories(chainId, product.id, HISTORY_TYPE.WEEKLY_COUPON, weeklyCouponEvents);
 
           const matureEvents = await this.contractService.getProductPastEvents(
             chainId,
