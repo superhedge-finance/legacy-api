@@ -1,6 +1,7 @@
 export enum HISTORY_TYPE {
   DEPOSIT = "DEPOSIT",
   WITHDRAW = "WITHDRAW",
+  WEEKLY_COUPON = "WEEKLY_COUPON"
 }
 
 export enum WITHDRAW_TYPE {
