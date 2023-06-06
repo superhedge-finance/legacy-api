@@ -5,7 +5,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_from",
+        "name": "_user",
         "type": "address"
       },
       {
@@ -17,7 +17,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_currentTokenId",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
@@ -48,7 +48,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_aaveLPool",
+        "name": "_cErc20Pool",
         "type": "address"
       },
       {
@@ -212,14 +212,8 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_aaveLPool",
+        "name": "_cErc20Pool",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
       }
     ],
     "name": "RedeemYield",
@@ -430,21 +424,27 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_coupon",
+        "name": "_amount",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_numOfNftHolders",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_timestamp",
+        "name": "_supply",
         "type": "uint256"
       }
     ],
@@ -457,7 +457,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_to",
+        "name": "_user",
         "type": "address"
       },
       {
@@ -476,7 +476,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_to",
+        "name": "_user",
         "type": "address"
       },
       {
@@ -495,7 +495,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_to",
+        "name": "_user",
         "type": "address"
       },
       {
@@ -617,7 +617,7 @@
       },
       {
         "internalType": "address",
-        "name": "_aaveLPool",
+        "name": "_cErc20Pool",
         "type": "address"
       }
     ],
@@ -988,7 +988,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_aaveLPool",
+        "name": "_cErc20Pool",
         "type": "address"
       }
     ],
