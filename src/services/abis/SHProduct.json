@@ -48,7 +48,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_cErc20Pool",
+        "name": "_aaveLPool",
         "type": "address"
       },
       {
@@ -212,8 +212,14 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_cErc20Pool",
+        "name": "_aaveLPool",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
       }
     ],
     "name": "RedeemYield",
@@ -617,7 +623,7 @@
       },
       {
         "internalType": "address",
-        "name": "_cErc20Pool",
+        "name": "_aaveLPool",
         "type": "address"
       }
     ],
@@ -988,7 +994,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_cErc20Pool",
+        "name": "_aaveLPool",
         "type": "address"
       }
     ],
