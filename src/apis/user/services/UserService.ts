@@ -38,6 +38,7 @@ export class UserService {
       where: {
         id: In(user.productIds),
         chainId: chainId,
+        isPaused: false
       },
     });
   }
