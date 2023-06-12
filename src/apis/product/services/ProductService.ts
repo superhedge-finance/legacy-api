@@ -132,6 +132,13 @@ export class ProductService {
     }
   }
 
+  async updateProductName(chainId: number, address: string, name: string): Promise<UpdateResult> {
+    return this.productRepository.update(
+      { chainId, address },
+      { name: name}
+    );
+  }
+
   async updateProduct(chainId: number, address: string, stats: StatsDto): Promise<UpdateResult> {
     return this.productRepository.update(
       { chainId, address: address },

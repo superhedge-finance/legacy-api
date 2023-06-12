@@ -32,6 +32,12 @@ export class EventsController {
         });
       });
 
+      this.contractService.subscribeToEvents(chainId, "ProductUpdated", (event) => {
+        this.productService.updateProductName(chainId, event[0], event[1]).then(() => {
+          console.log("Product name was updated")
+        });
+      });
+
       this.productService.getProductsWithoutStatus(chainId).then((products) => {
         products.forEach((product) => {
           this.contractService.subscribeToProductEvents(
