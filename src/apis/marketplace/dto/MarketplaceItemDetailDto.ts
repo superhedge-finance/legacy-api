@@ -11,7 +11,17 @@ export type OfferType = {
   seller: string;
 };
 
+export type DepositActivity = {
+  date: Date;
+  amount: number;
+  lots: number;
+  txhash: string;
+};
+
 export class MarketplaceItemDetailDto extends MarketplaceItemDto {
   @Property()
   offers: OfferType[];
+
+  @Property()
+  deposits: DepositActivity[];
 }
