@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Inject, Injectable } from "@tsed/di";
-import { MarketplaceRepository, ProductRepository, Product } from "../../../dal";
+import { MarketplaceRepository, ProductRepository, HistoryRepository, Product } from "../../../dal";
 import { MarketplaceItemDto } from "../dto/MarketplaceItemDto";
 import { ethers } from "ethers";
 import { MarketplaceItemFullDto } from "../dto/MarketplaceItemFullDto";
 import { MarketplaceItemDetailDto } from "../dto/MarketplaceItemDetailDto";
 import { DECIMAL } from "../../../shared/constants";
+import { HISTORY_TYPE } from "../../../shared/enum";
 
 @Injectable()
 export class MarketplaceService {
@@ -14,6 +15,10 @@ export class MarketplaceService {
 
   @Inject(ProductRepository)
   private readonly productRepository: ProductRepository;
+
+  @Inject(HistoryRepository)
+  private readonly historyRepository: HistoryRepository;
+
   async getListedItems(chainId: number): Promise<MarketplaceItemDto[]> {
     const listedItems = await this.marketplaceRepository
       .createQueryBuilder("marketplace")
@@ -163,6 +168,31 @@ export class MarketplaceService {
       };
     })
 
+    const product = await this.productRepository.findOne({
+      where: {
+        address: item.product_address,
+      },
+    });
+
+    const depositList = await this.historyRepository.find({
+      where: {
+        productId: product!.id,
+        type: HISTORY_TYPE.DEPOSIT
+      },
+      order: {
+        created_at: 'DESC'
+      }
+    });
+
+    const depositActivity = depositList.map((history) => {
+      return {
+        date: history.created_at,
+        amount: history.amountInDecimal,
+        lots: history.amountInDecimal / 1000,
+        txhash: history.transactionHash
+      }
+    });
+
     return {
       offerPrice: item.priceInDecimal,
       offerLots: item.quantityInDecimal,
@@ -176,7 +206,8 @@ export class MarketplaceService {
       risk: item.product.risk,
       fees: item.product.fees,
       counterparties: item.product.counterparties,
-      offers: offers
+      offers: offers,
+      deposits: depositActivity
     };
   }
 }
