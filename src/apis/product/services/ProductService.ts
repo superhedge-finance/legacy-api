@@ -3,6 +3,7 @@ import { Not, UpdateResult } from "typeorm";
 import { BigNumber, ethers } from "ethers";
 import { History, Product, ProductRepository, WithdrawRequest, WithdrawRequestRepository } from "../../../dal";
 import { CreatedProductDto } from "../dto/CreatedProductDto";
+import { ProductDetailDto } from "../dto/ProductDetailDto";
 import { CycleDto } from "../dto/CycleDto";
 import { StatsDto } from "../dto/StatsDto";
 import { HistoryRepository } from "../../../dal/repository/HistoryRepository";
@@ -64,8 +65,8 @@ export class ProductService {
     });
   }
 
-  getProduct(chainId: number, address: string): Promise<Product | null> {
-    return this.productRepository.findOne({
+  async getProduct(chainId: number, address: string): Promise<ProductDetailDto | null> {
+    const product = await this.productRepository.findOne({
       where: {
         address: address,
         chainId: chainId,
@@ -73,6 +74,45 @@ export class ProductService {
         isPaused: false,
       },
     });
+
+    if (!product) return null;
+
+    const depositList = await this.historyRepository.find({
+      where: {
+        productId: product.id,
+        type: HISTORY_TYPE.DEPOSIT
+      },
+      order: {
+        created_at: 'DESC'
+      }
+    });
+
+    const depositActivity = depositList.map((history) => {
+      return {
+        date: history.created_at,
+        amount: history.amountInDecimal,
+        lots: history.amountInDecimal / 1000,
+        txhash: history.transactionHash
+      }
+    });
+
+    return {
+      id: product.id,
+      address: product.address,
+      name: product.name,
+      underlying: product.underlying,
+      maxCapacity: product.maxCapacity,
+      currentCapacity: product.currentCapacity,
+      status: product.status,
+      issuanceCycle: product.issuanceCycle,
+      chainId: product.chainId,
+      vaultStrategy: product.vaultStrategy,
+      risk: product.risk,
+      fees: product.fees,
+      counterparties: product.counterparties,
+      mtmPrice: product.mtmPrice,
+      deposits: depositActivity
+    }
   }
 
   async syncProducts(chainId: number, pastEvents: CreatedProductDto[]): Promise<void> {

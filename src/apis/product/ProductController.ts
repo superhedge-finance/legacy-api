@@ -4,6 +4,7 @@ import { BodyParams, PathParams, QueryParams } from "@tsed/platform-params";
 import { ContractService } from "../../services/ContractService";
 import { ProductService } from "./services/ProductService";
 import { CreatedProductDto } from "./dto/CreatedProductDto";
+import { ProductDetailDto } from "./dto/ProductDetailDto";
 import { CronService } from "../../services/CronService";
 
 @Controller("/products")
@@ -24,8 +25,8 @@ export class ProductController {
   }
 
   @Get("/:address")
-  @Returns(200, CreatedProductDto)
-  async getProduct(@PathParams("address") address: string, @QueryParams("chainId") chainId: number): Promise<CreatedProductDto | null> {
+  @Returns(200, ProductDetailDto)
+  async getProduct(@PathParams("address") address: string, @QueryParams("chainId") chainId: number): Promise<ProductDetailDto | null> {
     return await this.productService.getProduct(chainId, address);
   }
 
