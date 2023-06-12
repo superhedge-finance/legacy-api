@@ -1,5 +1,6 @@
 import { Property } from "@tsed/schema";
 import { MarketplaceItemDto } from "./MarketplaceItemDto";
+import { DepositActivity } from "../../product/dto/ProductDetailDto";
 
 export type OfferType = {
   id: number;
@@ -9,13 +10,6 @@ export type OfferType = {
   startingTime: number;
   quantity: number;
   seller: string;
-};
-
-export type DepositActivity = {
-  date: Date;
-  amount: number;
-  lots: number;
-  txhash: string;
 };
 
 export class MarketplaceItemDetailDto extends MarketplaceItemDto {
