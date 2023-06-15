@@ -18,6 +18,11 @@ export class HistoryRepository extends Repository<History> {
   ) => {
     const exist = await this.findOne({ where: { transactionHash } });
     if (!exist) {
+      const lastEntity = await this.findOne(
+        { where: { chainId: chainId, address: address }, order: { created_at: 'DESC' }}
+      );
+      let totalBalance = 0;
+      if (lastEntity) totalBalance = lastEntity.totalBalance;
       const entity = new History();
       entity.address = address;
       entity.chainId = chainId;
@@ -26,6 +31,11 @@ export class HistoryRepository extends Repository<History> {
       entity.productId = productId;
       entity.amount = amount.toString();
       entity.amountInDecimal = Number(ethers.utils.formatUnits(amount, DECIMAL[chainId]));
+      if (type == HISTORY_TYPE.WITHDRAW) {
+        entity.totalBalance = totalBalance - entity.amountInDecimal;
+      } else {
+        entity.totalBalance = totalBalance + entity.amountInDecimal;
+      }
       entity.transactionHash = transactionHash;
       if (tokenId) {
         entity.tokenId = tokenId.toString();
