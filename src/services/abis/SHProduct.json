@@ -48,7 +48,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_aaveLPool",
+        "name": "_cErc20Pool",
         "type": "address"
       },
       {
@@ -178,6 +178,25 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "OptionPayout",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
         "internalType": "address",
         "name": "account",
@@ -212,14 +231,8 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "_aaveLPool",
+        "name": "_cErc20Pool",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
       }
     ],
     "name": "RedeemYield",
@@ -623,7 +636,7 @@
       },
       {
         "internalType": "address",
-        "name": "_aaveLPool",
+        "name": "_cErc20Pool",
         "type": "address"
       }
     ],
@@ -994,7 +1007,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_aaveLPool",
+        "name": "_cErc20Pool",
         "type": "address"
       }
     ],
