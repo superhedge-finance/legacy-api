@@ -52,20 +52,23 @@ export class EventsController {
               "FundLock",
               "Issuance",
               "WeeklyCoupon",
+              "OptionPayout",
               "Mature",
               "Unpaused",
               "Paused",
             ],
             (eventName, event) => {
               if (eventName === "Paused" || eventName === "Unpaused") {
-                this.productService.updateProductPauseStatus(chainId, product.address, eventName === "Paused").then((r) => console.log(r));
+                this.productService.updateProductPauseStatus(
+                  chainId, product.address, eventName === "Paused"
+                ).then((r) => console.log(r));
               } else {
                 this.contractService.getProductStats(chainId, product.address).then((stats) => {
                   this.productService.updateProduct(chainId, product.address, stats).then((r) => console.log(r));
                 });
               }
 
-              if (["Deposit", "WithdrawPrincipal", "WithdrawCoupon", "WithdrawOption", "WeeklyCoupon"].includes(eventName)) {
+              if (["Deposit", "WithdrawPrincipal", "WithdrawCoupon", "WithdrawOption", "WeeklyCoupon", "OptionPayout"].includes(eventName)) {
                 let withdrawType: WITHDRAW_TYPE = WITHDRAW_TYPE.NONE;
                 let type: HISTORY_TYPE;
 
@@ -80,8 +83,10 @@ export class EventsController {
                   type = HISTORY_TYPE.WITHDRAW;
                 } else if (eventName === "Deposit") {
                   type = HISTORY_TYPE.DEPOSIT;
-                } else {
+                } else if (eventName === "WeeklyCoupon") {
                   type = HISTORY_TYPE.WEEKLY_COUPON;
+                } else {
+                  type = HISTORY_TYPE.OPTION_PAYOUT;
                 }
 
                 const address = event.args._user;
@@ -120,7 +125,9 @@ export class EventsController {
                   .then((marketplaceEntities) => {
                     for (const marketplaceEntity of marketplaceEntities) {
                       marketplaceEntity.isExpired = true;
-                      this.marketplaceRepository.save(marketplaceEntity).then(() => console.log("Marketplace entity updated"));
+                      this.marketplaceRepository.save(marketplaceEntity).then(
+                        () => console.log("Marketplace entity updated")
+                      );
                     }
                   });
               }
