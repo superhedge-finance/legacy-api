@@ -40,6 +40,10 @@ export class History {
   @Property()
   amountInDecimal: number;
 
+  @Column()
+  @Property()
+  totalBalance: number;
+
   @Column({ unique: true })
   @Property()
   transactionHash: string;
