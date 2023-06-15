@@ -90,7 +90,7 @@ export class EventsController {
                 }
 
                 const address = event.args._user;
-
+                
                 this.historyRepository
                   .createHistory(
                     chainId,
