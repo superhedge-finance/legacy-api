@@ -3,6 +3,7 @@ import { In } from "typeorm";
 import { Product, ProductRepository, User, UserRepository, HistoryRepository } from "../../../dal";
 import { CreateUserDto } from "../dto/CreateUserDto";
 import { HistoryResponseDto } from "../dto/HistoryResponseDto";
+import { SummaryDto } from "../dto/SummaryDto";
 
 @Injectable()
 export class UserService {
@@ -51,6 +52,7 @@ export class UserService {
       .andWhere("history.chain_id = :chainId", { chainId })
       .orderBy("history.created_at", sort === 1 ? "ASC" : "DESC")
       .getMany();
+    
     return histories.map((history) => {
       return {
         address: history.address,
@@ -61,6 +63,29 @@ export class UserService {
         transactionHash: history.transactionHash,
         createdAt: history.created_at,
       };
+    });
+  }
+
+  async getSummaries(
+    chainId: number, 
+    address: string, 
+    startTime: string, 
+    endTime: string
+  ): Promise<Array<SummaryDto>> {
+    const summaries = await this.historyRepository
+      .query(`select dates::date, COALESCE(total_balance, 0) AS total_balance from generate_series('${startTime}'::date, '${endTime}'::date, '1 day') as dates
+          left join (
+          select created_at::date as created_at, SUM(amount_in_decimal * (CASE WHEN type = 'WITHDRAW' THEN -1 ELSE 1 END)) as total_balance from histories
+          where address = '${address}' and chain_id = '${chainId}'
+          group by created_at::date
+          order by created_at::date
+      ) as B ON dates = B.created_at`);
+      
+    return summaries.map((summary: any) => {
+      return {
+        dates: summary.dates,
+        totalBalance: summary.total_balance
+      }
     });
   }
 }

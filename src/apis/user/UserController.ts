@@ -6,6 +6,7 @@ import { CreateUserDto } from "./dto/CreateUserDto";
 import { CreatedUserDto } from "./dto/CreatedUserDto";
 import { Product, User } from "../../dal";
 import { HistoryResponseDto } from "./dto/HistoryResponseDto";
+import { SummaryDto } from "./dto/SummaryDto";
 
 @Controller("/users")
 export class UserController {
@@ -22,6 +23,17 @@ export class UserController {
   @Get("/:address")
   async get(@PathParams("address") address: string): Promise<User | null> {
     return await this.userService.get(address);
+  }
+
+  @Get("/portfolio/:address")
+  @Returns(200, Array).Of(SummaryDto)
+  async getSummaries(
+    @PathParams("address") address: string, 
+    @QueryParams("startTime") startTime: string,
+    @QueryParams("endTime") endTime: string,
+    @QueryParams("chainId") chainId: number
+  ): Promise<Array<SummaryDto>> {
+    return this.userService.getSummaries(chainId, address, startTime, endTime);
   }
 
   @Get("/positions/:address")
