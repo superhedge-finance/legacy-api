@@ -10,13 +10,14 @@ export class HistoryRepository extends Repository<History> {
     address: string,
     amount: BigNumber,
     transactionHash: string,
+    logIndex: number,
     productId: number,
     type: HISTORY_TYPE,
     withdrawType: WITHDRAW_TYPE,
     tokenId?: BigNumber,
     supply?: BigNumber,
   ) => {
-    const exist = await this.findOne({ where: { transactionHash } });
+    const exist = await this.findOne({ where: { transactionHash, logIndex } });
     if (!exist) {
       const entity = new History();
       entity.address = address;
@@ -27,6 +28,7 @@ export class HistoryRepository extends Repository<History> {
       entity.amount = amount.toString();
       entity.amountInDecimal = Number(ethers.utils.formatUnits(amount, DECIMAL[chainId]));
       entity.transactionHash = transactionHash;
+      entity.logIndex = logIndex;
       if (tokenId) {
         entity.tokenId = tokenId.toString();
       }

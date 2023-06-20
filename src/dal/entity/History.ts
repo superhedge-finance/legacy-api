@@ -1,9 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, Index, Unique } from "typeorm";
 import { Property } from "@tsed/schema";
 import { Product } from "./Product";
 import { HISTORY_TYPE, SUPPORT_CHAIN_IDS, WITHDRAW_TYPE } from "../../shared/enum";
 
 @Entity("histories")
+@Index(["transactionHash", "logIndex"], { unique: true })
+@Unique("txLog", ["transactionHash", "logIndex"])
 export class History {
   @PrimaryGeneratedColumn()
   id: number;
@@ -40,9 +42,13 @@ export class History {
   @Property()
   amountInDecimal: number;
 
-  @Column({ unique: true })
+  @Column()
   @Property()
   transactionHash: string;
+
+  @Column()
+  @Property()
+  logIndex: number;
 
   @Column({ nullable: true })
   @Property()
