@@ -155,20 +155,24 @@ export class ProductService {
     withdrawType: WITHDRAW_TYPE = WITHDRAW_TYPE.NONE,
   ): Promise<void> {
     for (const event of pastEvents) {
-      const entity = new History();
-      if (type === HISTORY_TYPE.DEPOSIT || type === HISTORY_TYPE.WEEKLY_COUPON) {
-        entity.tokenId = event.args._tokenId.toString();
-        entity.supply = event.args._supply.toString();
-        entity.supplyInDecimal = event.args._supply.toNumber();
+      try {
+        const entity = new History();
+        if (type === HISTORY_TYPE.DEPOSIT || type === HISTORY_TYPE.WEEKLY_COUPON) {
+          entity.tokenId = event.args._tokenId.toString();
+          entity.supply = event.args._supply.toString();
+          entity.supplyInDecimal = event.args._supply.toNumber();
+        }
+        entity.address = event.args._user;
+        entity.type = type;
+        entity.withdrawType = withdrawType;
+        entity.productId = productId;
+        entity.amount = event.args._amount.toString();
+        entity.amountInDecimal = Number(ethers.utils.formatUnits(event.args._amount, DECIMAL[chainId]));
+        entity.transactionHash = event.transactionHash;
+        entity.logIndex = event.logIndex;
+        await this.historyRepository.save(entity);
+      } catch (e){
       }
-      entity.address = event.args._user;
-      entity.type = type;
-      entity.withdrawType = withdrawType;
-      entity.productId = productId;
-      entity.amount = event.args._amount.toString();
-      entity.amountInDecimal = Number(ethers.utils.formatUnits(event.args._amount, DECIMAL[chainId]));
-      entity.transactionHash = event.transactionHash;
-      await this.historyRepository.save(entity);
     }
   }
 
