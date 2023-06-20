@@ -97,6 +97,7 @@ export class EventsController {
                     address,
                     event.args._amount,
                     event.transactionHash,
+                    event.logIndex,
                     product.id,
                     type,
                     withdrawType,
