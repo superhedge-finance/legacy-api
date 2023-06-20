@@ -38,7 +38,7 @@ export class History {
   @Property()
   amount: string;
 
-  @Column()
+  @Column({ type: "decimal", precision: 32, scale: 18, nullable: true })
   @Property()
   amountInDecimal: number;
 
