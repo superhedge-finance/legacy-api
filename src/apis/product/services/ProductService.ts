@@ -156,6 +156,10 @@ export class ProductService {
   ): Promise<void> {
     for (const event of pastEvents) {
       try {
+        const exist = await this.historyRepository.findOne(
+          { where: { transactionHash: event.transactionHash, logIndex: event.logIndex } 
+        });
+        if (exist) continue;
         const entity = new History();
         if (type === HISTORY_TYPE.DEPOSIT || type === HISTORY_TYPE.WEEKLY_COUPON) {
           entity.tokenId = event.args._tokenId.toString();
@@ -163,6 +167,18 @@ export class ProductService {
           entity.supplyInDecimal = event.args._supply.toNumber();
         }
         entity.address = event.args._user;
+
+        const lastEntity = await this.historyRepository.findOne(
+          { where: { chainId: chainId, address: event.args._user }, order: { created_at: 'DESC' }}
+        );
+        let totalBalance = 0;
+        if (lastEntity) totalBalance = lastEntity.totalBalance;
+        if (type == HISTORY_TYPE.WITHDRAW) {
+          entity.totalBalance = totalBalance - entity.amountInDecimal;
+        } else {
+          entity.totalBalance = totalBalance + entity.amountInDecimal;
+        }
+
         entity.type = type;
         entity.withdrawType = withdrawType;
         entity.productId = productId;
