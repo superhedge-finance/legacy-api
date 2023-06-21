@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from "ethers";
+import { BigNumber, ethers, FixedNumber } from "ethers";
 import { Repository } from "typeorm";
 import { History } from "../entity";
 import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../shared/enum";
@@ -22,8 +22,9 @@ export class HistoryRepository extends Repository<History> {
       const lastEntity = await this.findOne(
         { where: { chainId, address }, order: { created_at: 'DESC' }}
       );
-      let totalBalance = 0;
-      if (lastEntity) totalBalance = lastEntity.totalBalance;
+      let totalBalance = FixedNumber.from(0);
+      if (lastEntity) totalBalance = FixedNumber.from(lastEntity.totalBalance);
+
       const entity = new History();
       entity.address = address;
       entity.chainId = chainId;
@@ -33,9 +34,9 @@ export class HistoryRepository extends Repository<History> {
       entity.amount = amount.toString();
       entity.amountInDecimal = Number(ethers.utils.formatUnits(amount, DECIMAL[chainId]));
       if (type == HISTORY_TYPE.WITHDRAW) {
-        entity.totalBalance = totalBalance - entity.amountInDecimal;
+        entity.totalBalance = (totalBalance.subUnsafe(FixedNumber.from(entity.amountInDecimal))).toString();
       } else {
-        entity.totalBalance = totalBalance + entity.amountInDecimal;
+        entity.totalBalance = (totalBalance.addUnsafe(FixedNumber.from(entity.amountInDecimal))).toString();
       }
       entity.transactionHash = transactionHash;
       entity.logIndex = logIndex;

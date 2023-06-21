@@ -73,7 +73,7 @@ export class UserService {
     endTime: string
   ): Promise<Array<SummaryDto>> {
     const summaries = await this.historyRepository
-      .query(`select dates::date, COALESCE(total_balance, 0) AS total_balance from generate_series('${startTime}'::date, '${endTime}'::date, '1 day') as dates
+      .query(`select dates::date, COALESCE(total_balance, '0') AS total_balance from generate_series('${startTime}'::date, '${endTime}'::date, '1 day') as dates
       left join (
           select distinct on ("created_at") * from (
            select created_at::date as created_at, id, total_balance from histories where address = '${address}' and chain_id = '${chainId}'

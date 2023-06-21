@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@tsed/di";
 import { Not, UpdateResult } from "typeorm";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber, ethers, FixedNumber } from "ethers";
 import { History, Product, ProductRepository, WithdrawRequest, WithdrawRequestRepository } from "../../../dal";
 import { CreatedProductDto } from "../dto/CreatedProductDto";
 import { ProductDetailDto } from "../dto/ProductDetailDto";
@@ -160,6 +160,13 @@ export class ProductService {
           { where: { transactionHash: event.transactionHash, logIndex: event.logIndex } 
         });
         if (exist) continue;
+
+        const lastEntity = await this.historyRepository.findOne(
+          { where: { chainId: chainId, address: event.args._user }, order: { created_at: 'DESC' }}
+        );
+        let totalBalance = FixedNumber.from(0);
+        if (lastEntity) totalBalance = FixedNumber.from(lastEntity.totalBalance);
+
         const entity = new History();
         if (type === HISTORY_TYPE.DEPOSIT || type === HISTORY_TYPE.WEEKLY_COUPON) {
           entity.tokenId = event.args._tokenId.toString();
@@ -167,23 +174,17 @@ export class ProductService {
           entity.supplyInDecimal = event.args._supply.toNumber();
         }
         entity.address = event.args._user;
-
-        const lastEntity = await this.historyRepository.findOne(
-          { where: { chainId: chainId, address: event.args._user }, order: { created_at: 'DESC' }}
-        );
-        let totalBalance = 0;
-        if (lastEntity) totalBalance = lastEntity.totalBalance;
-        if (type == HISTORY_TYPE.WITHDRAW) {
-          entity.totalBalance = totalBalance - entity.amountInDecimal;
-        } else {
-          entity.totalBalance = totalBalance + entity.amountInDecimal;
-        }
-
         entity.type = type;
         entity.withdrawType = withdrawType;
         entity.productId = productId;
         entity.amount = event.args._amount.toString();
         entity.amountInDecimal = Number(ethers.utils.formatUnits(event.args._amount, DECIMAL[chainId]));
+
+        if (type == HISTORY_TYPE.WITHDRAW) {
+          entity.totalBalance = (totalBalance.subUnsafe(FixedNumber.from(entity.amountInDecimal))).toString();
+        } else {
+          entity.totalBalance = (totalBalance.addUnsafe(FixedNumber.from(entity.amountInDecimal))).toString();
+        }
         entity.transactionHash = event.transactionHash;
         entity.logIndex = event.logIndex;
         await this.historyRepository.save(entity);

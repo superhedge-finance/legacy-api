@@ -42,9 +42,9 @@ export class History {
   @Property()
   amountInDecimal: number;
 
-  @Column({ type: "decimal", precision: 32, scale: 18, nullable: true })
+  @Column({ nullable: true })
   @Property()
-  totalBalance: number;
+  totalBalance: string;
 
   @Column()
   @Property()
