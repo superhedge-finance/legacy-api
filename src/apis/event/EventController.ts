@@ -3,7 +3,8 @@ import { ContractService } from "../../services/ContractService";
 import { ProductService } from "../product/services/ProductService";
 import { HistoryRepository, MarketplaceRepository, UserRepository, Product } from "../../dal";
 import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../shared/enum";
-import { SUPPORT_CHAINS } from "../../shared/constants";
+import { DECIMAL, SUPPORT_CHAINS } from "../../shared/constants";
+import { ethers, constants } from "ethers";
 
 @Controller("/events")
 export class EventsController {
@@ -36,6 +37,29 @@ export class EventsController {
         this.productService.updateProductName(chainId, event[0], event[1]).then(() => {
           console.log("Product name was updated")
         });
+      });
+      // Listen NFT transfer event
+      this.contractService.subscribeToTransferEvent(chainId, "TransferSingle", (event) => {
+        if(event.args.from != constants.AddressZero && event.args.to != constants.AddressZero) {
+          const value = event.args.value;
+          const amountInDecimal = parseInt(value) * 1000;
+          const amount = ethers.utils.parseUnits(amountInDecimal.toString(), DECIMAL[chainId]);
+          this.historyRepository
+            .createHistory(
+              chainId,
+              event.args.to,
+              amount,
+              event.transactionHash,
+              event.logIndex,
+              HISTORY_TYPE.TRANSFER,
+              WITHDRAW_TYPE.NONE,
+              0,
+              event.args.id,
+              event.args.value,
+              event.args.from
+            )
+            .then(() => console.log("History saved"));
+        }
       });
 
       this.productService.getProductsWithoutStatus(chainId).then((products) => {
@@ -98,9 +122,9 @@ export class EventsController {
                     event.args._amount,
                     event.transactionHash,
                     event.logIndex,
-                    product.id,
                     type,
                     withdrawType,
+                    product.id,
                     event.args._tokenId,
                     event.args._supply,
                   )
@@ -160,6 +184,7 @@ export class EventsController {
           } else if (eventName === "ItemSold") {
             const listingId = event.args.listingId;
             const buyer = event.args.buyer;
+            const seller = event.args.seller;
             const marketplace = await this.marketplaceRepository
               .createQueryBuilder("marketplace")
               .where("marketplace.listing_id = :listingId", { listingId: listingId.toString() })
@@ -180,6 +205,14 @@ export class EventsController {
                 this.userRepository
                   .saveProductId(buyer, marketplace.product.id)
                   .then(() => console.log("Item sold & Product saved to buyer's position"));
+
+                this.contractService.getProductPrincipalBalance(chainId, seller, marketplace.product_address).then((_principal) => {
+                  if (_principal) {
+                    this.userRepository
+                      .removeProductId(seller, marketplace.product.id)
+                      .then(() => console.log("Product ID removed from seller entity"));
+                  }
+                });
               });
           } else if (eventName === "ItemCanceled") {
             this.marketplaceRepository
