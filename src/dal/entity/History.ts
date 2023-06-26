@@ -30,7 +30,7 @@ export class History {
   @Property()
   withdrawType: WITHDRAW_TYPE;
 
-  @Column()
+  @Column({ nullable: true })
   @Property()
   productId: number;
 
@@ -69,6 +69,10 @@ export class History {
   @Column({ type: "enum", enum: SUPPORT_CHAIN_IDS, default: SUPPORT_CHAIN_IDS.GOERLI })
   @Property()
   chainId: number;
+
+  @Column({ nullable: true })
+  @Property()
+  from: string;
 
   @OneToOne(() => Product, (product) => product.history)
   product: Product;
