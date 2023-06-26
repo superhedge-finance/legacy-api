@@ -151,6 +151,7 @@ export class CronService {
           if (event.args) {
             const listingId = event.args.listingId;
             const buyer = event.args.buyer;
+            const seller = event.args.seller;
             const marketplace = await this.marketplaceRepository
               .createQueryBuilder("marketplace")
               .where("marketplace.listing_id = :listingId", { listingId: listingId.toString() })
@@ -170,6 +171,11 @@ export class CronService {
               )
               .then(async () => {
                 await this.userRepository.saveProductId(buyer, marketplace.product.id);
+
+                const _principal = await this.contractService.getProductPrincipalBalance(chainId, seller, marketplace.product_address);
+                if (_principal) {
+                  await this.userRepository.removeProductId(seller, marketplace.product.id);
+                }
               });
           }
         }
