@@ -50,6 +50,7 @@ export class UserService {
       .leftJoinAndMapOne("history.product", Product, "product", "product.id = history.product_id")
       .where("history.address = :address", { address })
       .andWhere("history.chain_id = :chainId", { chainId })
+      .andWhere("history.product_id > 0")
       .orderBy("history.created_at", sort === 1 ? "ASC" : "DESC")
       .getMany();
     
@@ -75,10 +76,10 @@ export class UserService {
     const summaries = await this.historyRepository
       .query(`select dates::date, total_balance from generate_series('${startTime}'::date, '${endTime}'::date, '1 day') as dates
       left join (
-          select distinct on ("created_at") * from (
-           select created_at::date as created_at, id, total_balance from histories where address = '${address}' and chain_id = '${chainId}'
-          ) as A order by "created_at", "id" DESC
-      ) as B ON dates = B.created_at`);
+          select distinct on ("updated_at") * from (
+           select updated_at::date as updated_at, id, total_balance from histories where address = '${address}' and chain_id = '${chainId}'
+          ) as A order by "updated_at", "id" DESC
+      ) as B ON dates = B.updated_at`);
       
     return summaries.map((summary: any) => {
       return {
