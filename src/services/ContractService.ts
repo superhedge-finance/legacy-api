@@ -3,15 +3,17 @@ import { BigNumber, Contract, ethers } from "ethers";
 import { CreatedProductDto, StatsDto } from "../apis";
 import FACTORY_ABI from "./abis/SHFactory.json";
 import PRODUCT_ABI from "./abis/SHProduct.json";
+import NFT_ABI from "./abis/SHNFT.json";
 import MARKETPLACE_ABI from "./abis/SHMarketplace.json";
-import { MARKETPLACE_ADDRESS, RPC_PROVIDERS, SH_FACTORY_ADDRESS, SUPPORT_CHAINS } from "../shared/constants";
+import { MARKETPLACE_ADDRESS, RPC_PROVIDERS, SH_FACTORY_ADDRESS, NFT_ADDRESS, SUPPORT_CHAINS } from "../shared/constants";
 
 @Injectable()
 export class ContractService {
   private readonly factoryContract: { [chainId: number]: Contract } = {};
   private readonly marketplaceContract: { [chainId: number]: Contract } = {};
+  private readonly nftContract: { [chainId: number]: Contract} = {};
   private readonly provider: { [chainId: number]: ethers.providers.JsonRpcProvider } = {};
-
+  
   constructor() {
     for (const chainId of SUPPORT_CHAINS) {
       this.provider[chainId] = new ethers.providers.StaticJsonRpcProvider(RPC_PROVIDERS[chainId]);
@@ -21,12 +23,19 @@ export class ContractService {
         MARKETPLACE_ABI,
         this.provider[chainId],
       );
+      this.nftContract[chainId] = new ethers.Contract(NFT_ADDRESS[chainId], NFT_ABI, this.provider[chainId]);
     }
   }
 
   subscribeToEvents(chainId: number, eventName: string, callback: (event: any) => void) {
     this.factoryContract[chainId].on(eventName, (...event) => {
       callback(event);
+    });
+  }
+
+  subscribeToTransferEvent(chainId: number, eventName: string, callback: (event: any) =>  void) {
+    this.nftContract[chainId].on(eventName, (...event) => {
+      callback(event[event.length - 1]);
     });
   }
 
