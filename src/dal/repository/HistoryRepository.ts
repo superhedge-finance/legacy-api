@@ -11,11 +11,12 @@ export class HistoryRepository extends Repository<History> {
     amount: BigNumber,
     transactionHash: string,
     logIndex: number,
-    productId: number,
     type: HISTORY_TYPE,
     withdrawType: WITHDRAW_TYPE,
+    productId: number,
     tokenId?: BigNumber,
     supply?: BigNumber,
+    from?: string
   ) => {
     const exist = await this.findOne({ where: { transactionHash, logIndex } });
     if (!exist) {
@@ -47,6 +48,17 @@ export class HistoryRepository extends Repository<History> {
         entity.supply = supply.toString();
         entity.supplyInDecimal = supply.toNumber();
       }
+      if (type == HISTORY_TYPE.TRANSFER) {
+        const seller = await this.findOne(
+          { where: { address: from, chainId: chainId }, order: { created_at: 'DESC' }}
+        );
+        if (seller) {
+          const prevTotalBal = FixedNumber.from(seller.totalBalance);
+          seller.totalBalance = (prevTotalBal.subUnsafe(FixedNumber.from(entity.amountInDecimal))).toString();
+          this.save(seller);
+        }
+      }
+      if (from) entity.from = from;
       return this.save(entity);
     }
   };
