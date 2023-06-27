@@ -96,6 +96,7 @@ export class MarketplaceRepository extends Repository<Marketplace> {
       item.price = newPrice.toString();
       item.priceInDecimal = Number(ethers.utils.formatUnits(newPrice, DECIMAL[chainId]));
       item.payToken = payToken;
+      item.transactionHash = transactionHash;
       return this.save(item);
     }
   }
