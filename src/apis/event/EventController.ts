@@ -58,7 +58,7 @@ export class EventsController {
               event.args.value,
               event.args.from
             )
-            .then(() => console.log("History saved"));
+            .then(() => console.log("Transfer History saved"));
         }
       });
 

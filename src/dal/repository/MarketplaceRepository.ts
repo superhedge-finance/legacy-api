@@ -21,22 +21,26 @@ export class MarketplaceRepository extends Repository<Marketplace> {
       where: { transactionHash },
     });
     if (!exist) {
-      const marketplace = new Marketplace();
-      marketplace.chainId = chainId;
-      marketplace.seller = owner;
-      marketplace.nft = nft;
-      marketplace.product_address = product;
-      marketplace.tokenId = tokenId.toString();
-      marketplace.tokenIdInDecimal = tokenId.toNumber();
-      marketplace.quantity = quantity.toString();
-      marketplace.quantityInDecimal = quantity.toNumber();
-      marketplace.payToken = payToken;
-      marketplace.price = price.toString();
-      marketplace.priceInDecimal = Number(ethers.utils.formatUnits(price, DECIMAL[chainId]));
-      marketplace.startingTime = startingTime.toNumber();
-      marketplace.listingId = listingId.toString();
-      marketplace.transactionHash = transactionHash;
-      return this.save(marketplace);
+      try {
+        const marketplace = new Marketplace();
+        marketplace.chainId = chainId;
+        marketplace.seller = owner;
+        marketplace.nft = nft;
+        marketplace.product_address = product;
+        marketplace.tokenId = tokenId.toString();
+        marketplace.tokenIdInDecimal = tokenId.toNumber();
+        marketplace.quantity = quantity.toString();
+        marketplace.quantityInDecimal = quantity.toNumber();
+        marketplace.payToken = payToken;
+        marketplace.price = price.toString();
+        marketplace.priceInDecimal = Number(ethers.utils.formatUnits(price, DECIMAL[chainId]));
+        marketplace.startingTime = startingTime.toNumber();
+        marketplace.listingId = listingId.toString();
+        marketplace.transactionHash = transactionHash;
+        return this.save(marketplace);
+      } catch (e){
+        console.log(e);
+      }
     }
     return null;
   }
