@@ -37,4 +37,7 @@ export class MarketplaceItemDto {
 
   @Property()
   counterparties: string;
+
+  @Property()
+  estimatedApy: string;
 }

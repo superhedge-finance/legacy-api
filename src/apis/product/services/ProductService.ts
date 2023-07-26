@@ -110,6 +110,7 @@ export class ProductService {
       risk: product.risk,
       fees: product.fees,
       counterparties: product.counterparties,
+      estimatedApy: product.estimatedApy,
       mtmPrice: product.mtmPrice,
       deposits: depositActivity
     }

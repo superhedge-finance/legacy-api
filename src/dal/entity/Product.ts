@@ -65,6 +65,10 @@ export class Product {
 
   @Column({ nullable: true })
   @Property()
+  estimatedApy: string;
+
+  @Column({ nullable: true })
+  @Property()
   mtmPrice: number;
 
   @ManyToOne(() => User, (user) => user.products)

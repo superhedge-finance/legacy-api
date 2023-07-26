@@ -25,6 +25,9 @@ export class ProductDetailDto extends CreatedProductDto {
     counterparties: string;
 
     @Property()
+    estimatedApy: string;
+
+    @Property()
     mtmPrice: number;
 
     @Property()

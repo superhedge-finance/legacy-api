@@ -59,7 +59,8 @@ export class MarketplaceService {
         vaultStrategy: product!.vaultStrategy,
         risk: product!.risk,
         fees: product!.fees,
-        counterparties: product!.counterparties
+        counterparties: product!.counterparties,
+        estimatedApy: product!.estimatedApy
       };
     }));
   }
@@ -89,6 +90,7 @@ export class MarketplaceService {
         risk: item.product.risk,
         fees: item.product.fees,
         counterparties: item.product.counterparties,
+        estimatedApy: item.product.estimatedApy,
         id: item.id,
         tokenId: item.tokenId,
         listingId: item.listingId,
@@ -123,6 +125,7 @@ export class MarketplaceService {
       risk: item.product.risk,
       fees: item.product.fees,
       counterparties: item.product.counterparties,
+      estimatedApy: item.product.estimatedApy,
       id: item.id,
       tokenId: item.tokenId,
       listingId: item.listingId,
@@ -206,6 +209,7 @@ export class MarketplaceService {
       risk: item.product.risk,
       fees: item.product.fees,
       counterparties: item.product.counterparties,
+      estimatedApy: item.product.estimatedApy,
       offers: offers,
       deposits: depositActivity
     };
