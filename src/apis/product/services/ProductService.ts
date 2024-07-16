@@ -10,6 +10,20 @@ import { HistoryRepository } from "../../../dal/repository/HistoryRepository";
 import { HISTORY_TYPE, WITHDRAW_TYPE } from "../../../shared/enum";
 import { DECIMAL } from "../../../shared/constants";
 
+const express = require("express")
+// Import Moralis
+const Moralis = require("moralis").default
+// Import the EvmChain dataType
+const { EvmChain } = require("@moralisweb3/common-evm-utils")
+
+const MORALIS_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6Ijc2ZDhlYTQ1LWJmNTctNDFkYS04YjkxLTg4NjcxNWMzNDM3MiIsIm9yZ0lkIjoiMzk5NjgwIiwidXNlcklkIjoiNDEwNjg3IiwidHlwZUlkIjoiNjk0NzRhOGYtM2Q1OC00ZGU3LTk2ZWItZWQ0NTAwYjJiM2IwIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MjA2NjIyMzUsImV4cCI6NDg3NjQyMjIzNX0.ADggUZYihL3LZOzcg-VN9saKl-Y6gEUuZN4uU09rafQ"
+const address = "0x457E474891f8e8248f906cd24c3ddC2AD7fc689a"
+const chain = EvmChain.ETHEREUM
+
+Moralis.start({
+  apiKey: MORALIS_API_KEY,
+})
+
 @Injectable()
 export class ProductService {
   @Inject(ProductRepository)
@@ -240,4 +254,34 @@ export class ProductService {
       await this.withdrawRequestRepository.remove(request);
     }
   }
+
+  async getHolderList(tokenAddress: string): Promise<{balanceToken: number[], ownerAddress: string[]}> {
+    const response = await Moralis.EvmApi.token.getTokenOwners({
+      "chain": "0xa4b1",
+      "order": "ASC",
+      "tokenAddress": tokenAddress
+    })
+    // const balanceToken = response?.result?.map((item: any) => item?.balance)
+    // const ownerAddress = response?.result?.map((item: any) => item?.ownerAddress)
+    const balanceToken = response.result?.map((item: any) => item?.balance) ?? [];
+    const ownerAddress = response.result?.map((item: any) => item?.ownerAddress) ?? [];
+    console.log(balanceToken)
+    console.log(ownerAddress)
+    return { balanceToken, ownerAddress }
+  }
+
+  // async getHolderList(tokenAddress: string): Promise<{ holders: { balance: number; ownerAddress: string }[] }> {
+  //   const response = await Moralis.EvmApi.token.getTokenOwners({
+  //     "chain": "0xa4b1",
+  //     "order": "ASC",
+  //     "tokenAddress": tokenAddress
+  //   });
+  
+  //   const holders = response.result?.map((item: any) => ({
+  //     balance: item?.balance,
+  //     ownerAddress: item?.ownerAddress
+  //   })) ?? [];
+  
+  //   return { holders };
+  // }
 }

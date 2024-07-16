@@ -54,4 +54,23 @@ export class ProductController {
   ): Promise<void> {
     return this.productService.cancelWithdraw(chainId, address, product);
   }
+
+  // @Get("/get-holder-list")
+  // @Returns(200, holders)
+  // async getHolderList(
+  //   // @QueryParams("chainId") chainId: number,
+  //   @QueryParams("tokenAdress") token: string,
+  // ): Promise<{holders: { balance: number; ownerAddress: string }[]}> {
+  //   return this.productService.getHolderList(token);
+  // }
+
+  @Post("/get-holder-list")
+  // @Returns(200, Array<{ balanceToken: number[], ownerAddress: string[] }>)
+  async getHolderList(
+    @QueryParams("tokenAddress") tokenAddress: string
+  ): Promise<{ balanceToken: number[]; ownerAddress: string[] }> {
+    return this.productService.getHolderList(tokenAddress);
+  }
+
+
 }
